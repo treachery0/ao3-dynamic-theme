@@ -19,7 +19,7 @@ ul.actions {
     padding-top: 0;
 }
 
-.actions a, .actions a:link, .action, .action:link, .actions button, .actions input, input[type="submit"], button, .current, .actions label {
+.actions a, .actions a:link, .action, .action:link, .actions button, .actions input, input[type="submit"], button, .current, .actions label, a#login-dropdown {
     color: var(--color-base-content);
     width: auto;
     font-size: 100%;

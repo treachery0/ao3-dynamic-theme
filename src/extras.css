@@ -58,3 +58,10 @@ li:has(> .rss) {
         content: "✨";
     }
 }
+
+/*
+  Hide notice that you have muted users.
+*/
+p.muted.notice {
+    display: none;
+}

@@ -1,16 +1,21 @@
 {
   "name": "ao3-site-skin",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "type": "module",
   "private": true,
   "scripts": {
     "build": "npx postcss src/inputs -d dist",
-    "build-info": "npx postcss src/inputs -d dist && find dist/*.css -type f -exec stat --format=\"%6s bytes | %n\" {} \\;\n"
+    "preview": "npx node src/functions/preview.js",
+    "preview-live": "npx node src/functions/preview.js --live"
   },
   "dependencies": {
     "@csstools/postcss-color-mix-function": "^3.0.0",
     "@csstools/postcss-minify": "^2.0.0",
     "@csstools/postcss-oklab-function": "^4.0.0",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.0",
+    "jsdom": "^26.1.0",
+    "minimist": "^1.2.0",
     "postcss": "^8.5.0",
     "postcss-calc": "^10.1.0",
     "postcss-cli": "^11.0.0",
@@ -19,6 +24,7 @@
     "postcss-discard-comments": "^7.0.0",
     "postcss-functions": "^4.0.0",
     "postcss-import": "^16.1.0",
-    "postcss-nested": "^7.0.0"
+    "postcss-nested": "^7.0.0",
+    "puppeteer": "^24.20.0"
   }
 }
