@@ -1,11 +1,3 @@
-function density(...values) {
-    return multiplyVariable(values, '--ui-density');
-}
-
-function round(...values) {
-    return multiplyVariable(values, '--ui-roundness');
-}
-
 function multiplyVariable(values, variable) {
     if (Array.isArray(values)) {
         if(values.length === 0) {
@@ -20,6 +12,14 @@ function multiplyVariable(values, variable) {
     }
 
     return `calc(${values} * var(${variable}))`;
+}
+
+function density(...values) {
+    return multiplyVariable(values, '--ui-density');
+}
+
+function round(...values) {
+    return multiplyVariable(values, '--ui-roundness');
 }
 
 function alpha(color, opacity) {

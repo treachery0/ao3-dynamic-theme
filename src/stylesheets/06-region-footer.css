@@ -22,7 +22,7 @@
         display: block;
     }
 
-    a {
+    a, button {
         background: transparent;
         border: 0;
         margin: auto;

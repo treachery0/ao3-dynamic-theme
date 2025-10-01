@@ -1,4 +1,4 @@
-@import '../theme.css';
+@import '../themes/default.css';
 
 @import '../stylesheets/01-core.css';
 @import '../stylesheets/02-elements.css';
@@ -21,5 +21,4 @@
 @import '../stylesheets/19-zone-tags.css';
 @import '../stylesheets/21-userstuff.css';
 @import '../stylesheets/22-system-messages.css';
-
-@import '../extras.css';
+@import '../stylesheets/extras.css';

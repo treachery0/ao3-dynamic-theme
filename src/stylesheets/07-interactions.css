@@ -231,10 +231,6 @@ We only use error messages for LiveValidation. Style spoofs the system error mes
     margin: density(2, 0, 0);
 }
 
-form li ul.autocomplete li.input {
-    border: 0;
-}
-
 .autocomplete .dropdown ul li:hover, .autocomplete .dropdown li.selected {
     background: var(--color-base-300);
 }

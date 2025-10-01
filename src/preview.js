@@ -2,24 +2,26 @@ import { promises as fs } from "fs";
 import puppeteer from "puppeteer";
 import path from "path";
 import minimist from "minimist";
-import express from "express";
 import postcss from "postcss";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import { JSDOM } from "jsdom";
-import postcssConfig from "../../postcss.config.js";
-import previewConfig from "../../preview.config.js";
+import postcssConfig from "../postcss.config.js";
+import previewConfig from "../preview.config.js";
+import { readCache, writeCache } from "./functions/cache.js";
+import { startServer } from "./functions/server.js";
 
 const argv = minimist(process.argv.slice(2));
 await main(argv);
 
 async function main(argv) {
-    const css = await compileStyleSheets();
-    console.log('✅  Compiled stylesheets');
-
     const pages = await fetchPages();
     console.log('✅  Fetched pages');
 
-    await applyStyles(pages, css);
+    const css = await compileStyleSheets();
+    console.log('✅  Compiled stylesheets');
+
+    for(const dom of pages.values()) {
+        applyStyleSheets(dom, css);
+    }
     console.log('✅  Applied styles to pages');
 
     const server = startServer(pages);
@@ -28,12 +30,12 @@ async function main(argv) {
     if(argv.live) {
         console.log('✅  Live pages ready');
 
-        for (const [url, _] of pages) {
+        for(const [url, _] of pages) {
             console.log(`  http://localhost:${previewConfig.port}${url}`);
         }
     }
     else {
-        await createPreviews(pages.keys());
+        await saveScreenshots(pages.keys());
         console.log('✅  Created preview images');
 
         server.close();
@@ -64,9 +66,8 @@ async function fetchPages() {
 
     for(const page of previewConfig.pages) {
         try {
-            const url = previewConfig.baseUrl + page;
-            const html = await fetchHtml(url);
-            const dom = new JSDOM(html, {url: url});
+            const url = previewConfig.site + page;
+            const dom = await createDom(url);
 
             pages.set(page, dom);
 
@@ -80,24 +81,29 @@ async function fetchPages() {
     return pages;
 }
 
-async function fetchHtml(url) {
-    const res = await fetch(url, {redirect: 'follow'});
+async function createDom(url) {
+    let dom = await readCache(url);
+
+    if(dom) {
+        return dom;
+    }
+
+    const res = await fetch(url);
 
     if(!res.ok) {
-        throw new Error(`   Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+        throw new Error(`Failed to fetch resource (${res.status}), ${res.statusText}`);
     }
 
-    return await res.text();
+    const html = await res.text();
+    dom = new JSDOM(html, {url});
+
+    cleanDocument(dom);
+    await writeCache(dom, url);
+
+    return dom;
 }
 
-async function applyStyles(pages, css) {
-    for(const [_, dom] of pages) {
-        cleanDOM(dom);
-        injectCss(dom, css);
-    }
-}
-
-function cleanDOM(dom) {
+function cleanDocument(dom) {
     const doc = dom.window.document;
 
     // remove scripts
@@ -113,7 +119,7 @@ function cleanDOM(dom) {
         .forEach(el => el.remove());
 }
 
-function injectCss(dom, css) {
+function applyStyleSheets(dom, css) {
     const doc = dom.window.document;
     const styleEl = doc.createElement('style');
     styleEl.appendChild(doc.createTextNode(css));
@@ -126,8 +132,20 @@ function injectCss(dom, css) {
     }
 }
 
-async function ensureDir(dir) {
-    await fs.mkdir(dir, {recursive: true});
+async function saveScreenshots(urls) {
+    const browser = await puppeteer.launch();
+
+    await fs.mkdir(previewConfig.outputDir, {recursive: true});
+
+    for(const url of urls) {
+        const name = url.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9.-]/gi, '-') || 'root';
+        const fileName = `${name}.${previewConfig.capture.extension}`;
+
+        await saveScreenshot(`http://localhost:${previewConfig.port}${url}`, browser, fileName);
+        console.log(`   Saved ${fileName}`);
+    }
+
+    await browser.close();
 }
 
 async function saveScreenshot(url, browser, fileName) {
@@ -149,49 +167,4 @@ async function saveScreenshot(url, browser, fileName) {
     });
 
     await page.close();
-}
-
-function startServer(pages) {
-    const app = express();
-
-    app.use(
-        createProxyMiddleware({
-            target: previewConfig.baseUrl,
-            changeOrigin: true,
-            selfHandleResponse: false,
-            pathFilter: (path, req) => {
-                return path.match('^/images') && req.method === 'GET';
-            }
-        }),
-        (req, res) => {
-            const page = pages.get(req.path);
-
-            if(page) {
-                res.setHeader('Content-Type', 'text/html')
-                res.send(page.serialize());
-            }
-            else {
-                res.status(404);
-                res.send(`Page ${req.path} not found`);
-            }
-        }
-    );
-
-    return app.listen(previewConfig.port);
-}
-
-async function createPreviews(urls) {
-    const browser = await puppeteer.launch();
-
-    await ensureDir(previewConfig.outputDir);
-
-    for(const url of urls) {
-        const name = url.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9.-]/gi, '-') || 'home';
-        const fileName = `${name}.${previewConfig.capture.extension}`;
-
-        await saveScreenshot(`http://localhost:${previewConfig.port}${url}`, browser, fileName);
-        console.log(`   Saved ${fileName}`);
-    }
-
-    await browser.close();
 }

@@ -4,7 +4,7 @@
 
 That being said, shoutout to the random dead dove fic that will inevitably get featured as the first result.
 
-<img alt="Home page" src=".github/assets/previews/home.png"/>
+<img alt="Home page" src=".github/assets/previews/root.png"/>
 <img alt="Browsing" src=".github/assets/previews/works.png"/>
 <img alt="Forms" src=".github/assets/previews/search.png"/>
 <img alt="Works" src=".github/assets/previews/works-5191202.png"/>

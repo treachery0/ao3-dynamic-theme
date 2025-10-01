@@ -1,12 +1,12 @@
 {
   "name": "ao3-site-skin",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "npx postcss src/inputs -d dist",
-    "preview": "npx node src/functions/preview.js",
-    "preview-live": "npx node src/functions/preview.js --live"
+    "build": "npx node src/build.js",
+    "preview": "npx node src/preview.js",
+    "preview-live": "npx node src/preview.js --live"
   },
   "dependencies": {
     "@csstools/postcss-color-mix-function": "^3.0.0",

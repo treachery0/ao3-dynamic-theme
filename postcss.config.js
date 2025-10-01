@@ -2,13 +2,13 @@ import oklabFunction from '@csstools/postcss-oklab-function';
 import minify from '@csstools/postcss-minify';
 import resolveColorMix from '@csstools/postcss-color-mix-function';
 import resolveImport from 'postcss-import';
-import resolveNested from 'postcss-nested';
 import customProperties from 'postcss-custom-properties';
-import discardComments from 'postcss-discard-comments';
 import discard from 'postcss-discard';
+import discardComments from 'postcss-discard-comments';
 import resolveCalc from 'postcss-calc';
+import resolveNested from 'postcss-nested';
 import resolveFunctions from 'postcss-functions';
-import functions from "./src/functions/variables.js";
+import functions from "./src/functions/css.js";
 
 export default {
     plugins: [
