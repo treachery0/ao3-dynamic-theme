@@ -1,7 +1,6 @@
-import { promises as fs } from "fs";
+import { readFileSync, mkdirSync } from "fs";
 import puppeteer from "puppeteer";
-import path from "path";
-import minimist from "minimist";
+import { join } from "path";
 import postcss from "postcss";
 import { JSDOM } from "jsdom";
 import postcssConfig from "../postcss.config.js";
@@ -9,10 +8,9 @@ import previewConfig from "../preview.config.js";
 import { readCache, writeCache } from "./functions/cache.js";
 import { startServer } from "./functions/server.js";
 
-const argv = minimist(process.argv.slice(2));
-await main(argv);
+await main();
 
-async function main(argv) {
+async function main() {
     const pages = await fetchPages();
     console.log('✅  Fetched pages');
 
@@ -27,20 +25,11 @@ async function main(argv) {
     const server = startServer(pages);
     console.log('✅  Web server started');
 
-    if(argv.live) {
-        console.log('✅  Live pages ready');
+    await saveScreenshots(pages.keys());
+    console.log('✅  Created preview images');
 
-        for(const [url, _] of pages) {
-            console.log(`  http://localhost:${previewConfig.port}${url}`);
-        }
-    }
-    else {
-        await saveScreenshots(pages.keys());
-        console.log('✅  Created preview images');
-
-        server.close();
-        console.log('✅  Done');
-    }
+    server.close();
+    console.log('✅  Done');
 }
 
 async function compileStyleSheets() {
@@ -48,8 +37,8 @@ async function compileStyleSheets() {
     const postCSS = await postcss(postcssConfig.plugins);
 
     for(const stylesheet of previewConfig.stylesheets) {
-        const filePath = path.join(previewConfig.inputDir, stylesheet.path);
-        const fileContents = await fs.readFile(filePath, 'utf-8');
+        const filePath = join(previewConfig.inputDir, stylesheet.path);
+        const fileContents = readFileSync(filePath, 'utf-8');
 
         const result = await postCSS.process(fileContents, {
             from: filePath
@@ -65,17 +54,17 @@ async function fetchPages() {
     const pages = new Map();
 
     for(const page of previewConfig.pages) {
-        try {
+
             const url = previewConfig.site + page;
             const dom = await createDom(url);
 
             pages.set(page, dom);
 
             console.log(`   Prepared "${page}"`);
-        }
-        catch(err) {
+
+        /*catch(err) {
             console.error(`   Error processing ${page}:`, err instanceof Error ? err.message : String(err));
-        }
+        }*/
     }
 
     return pages;
@@ -98,7 +87,7 @@ async function createDom(url) {
     dom = new JSDOM(html, {url});
 
     cleanDocument(dom);
-    await writeCache(dom, url);
+    writeCache(dom, url);
 
     return dom;
 }
@@ -135,7 +124,7 @@ function applyStyleSheets(dom, css) {
 async function saveScreenshots(urls) {
     const browser = await puppeteer.launch();
 
-    await fs.mkdir(previewConfig.outputDir, {recursive: true});
+    mkdirSync(previewConfig.outputDir, {recursive: true});
 
     for(const url of urls) {
         const name = url.replace(/^\/+|\/+$/g, '').replace(/[^a-z0-9.-]/gi, '-') || 'root';
@@ -159,7 +148,7 @@ async function saveScreenshot(url, browser, fileName) {
     await page.goto(url);
     await page.waitForNetworkIdle();
 
-    const filePath = path.join(previewConfig.outputDir, fileName);
+    const filePath = join(previewConfig.outputDir, fileName);
 
     await page.screenshot({
         type: previewConfig.capture.extension,

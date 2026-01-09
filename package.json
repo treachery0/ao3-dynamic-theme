@@ -5,8 +5,7 @@
   "private": true,
   "scripts": {
     "build": "npx node src/build.js",
-    "preview": "npx node src/preview.js",
-    "preview-live": "npx node src/preview.js --live"
+    "preview": "npx node src/preview.js"
   },
   "dependencies": {
     "@csstools/postcss-color-mix-function": "^3.0.0",
@@ -15,7 +14,6 @@
     "express": "^5.1.0",
     "http-proxy-middleware": "^3.0.0",
     "jsdom": "^26.1.0",
-    "minimist": "^1.2.0",
     "postcss": "^8.5.0",
     "postcss-calc": "^10.1.0",
     "postcss-cli": "^11.0.0",

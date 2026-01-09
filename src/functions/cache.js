@@ -1,5 +1,5 @@
 import path from "path";
-import { promises as fs } from "fs";
+import { mkdirSync, readFileSync, writeFileSync, rmSync } from "fs";
 import { JSDOM } from "jsdom";
 import previewConfig from "../../preview.config.js";
 
@@ -8,9 +8,10 @@ const metaSelector = `meta[name="${metaKey}"]`;
 
 function getCachePath(url) {
     const directory = previewConfig.caching.directory;
-    const name = `${encodeURIComponent(url)}.html`;
 
-    return path.join(directory, name);
+    mkdirSync(directory, {recursive: true});
+
+    return path.join(directory, `${encodeURIComponent(url)}.html`);
 }
 
 function hasExpired(dom) {
@@ -23,7 +24,7 @@ function hasExpired(dom) {
     return age > previewConfig.caching.duration;
 }
 
-async function addExpiration(dom) {
+function addExpiration(dom) {
     const doc = dom.window.document;
     let expirationEl = doc.querySelector(metaSelector);
     const expirationDate = String(Date.now());
@@ -40,7 +41,7 @@ async function addExpiration(dom) {
     doc.head.appendChild(expirationEl);
 }
 
-async function readFile(url) {
+function readFile(url) {
     if(!previewConfig.caching.enabled) {
         return;
     }
@@ -48,10 +49,14 @@ async function readFile(url) {
     const filePath = getCachePath(url);
     const fileEncoding = 'utf-8';
 
-    return await fs.readFile(filePath, fileEncoding);
+    try {
+        return readFileSync(filePath, fileEncoding);
+    }
+    catch {
+    }
 }
 
-async function writeFile(html, url) {
+function writeFile(html, url) {
     if(!previewConfig.caching.enabled) {
         return;
     }
@@ -59,26 +64,26 @@ async function writeFile(html, url) {
     const filePath = getCachePath(url);
     const fileEncoding = 'utf-8';
 
-    await fs.writeFile(filePath, html, fileEncoding);
+    writeFileSync(filePath, html, fileEncoding);
 }
 
-async function deleteFile(url) {
+function deleteFile(url) {
     if(!previewConfig.caching.enabled) {
         return;
     }
 
     const filePath = getCachePath(url);
 
-    await fs.rm(filePath);
+    rmSync(filePath);
 }
 
-export async function writeCache(dom, url) {
-    await addExpiration(dom);
-    await writeFile(dom.serialize(), url);
+export function writeCache(dom, url) {
+    addExpiration(dom);
+    writeFile(dom.serialize(), url);
 }
 
-export async function readCache(url) {
-    const html = await readFile(url);
+export function readCache(url) {
+    const html = readFile(url);
 
     if(!html) {
         return;
@@ -87,11 +92,11 @@ export async function readCache(url) {
     const dom = new JSDOM(html, {url});
 
     if(hasExpired(dom)) {
-        await deleteFile(url);
+        deleteFile(url);
         return;
     }
 
-    await addExpiration(dom);
+    addExpiration(dom);
 
     return dom;
 }
