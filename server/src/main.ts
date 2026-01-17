@@ -11,7 +11,7 @@ const openapi = fromHono(app, {
 });
 
 openapi.get("/api/assets", Assets);
-openapi.get("/api/generate", Generate);
 openapi.get("/api/pages", Pages);
+openapi.post("/api/generate", Generate);
 
 export default app;

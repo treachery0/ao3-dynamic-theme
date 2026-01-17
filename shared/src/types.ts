@@ -12,6 +12,13 @@ export type StyleSheetInfo = {
     importance: StyleSheetImportance
 }
 
+export type StyleSheetFileInfo = {
+    name: string
+    media: string
+    path: string
+    importance: StyleSheetImportance
+}
+
 export type StyleSheetImportance = 'optional' | 'recommended' | 'required'
 
 export type StyleSheetVariable = {

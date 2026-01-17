@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { StyleSheetVariable } from "ao3-tg-shared";
+import { StyleSheetFileInfo, StyleSheetInfo, StyleSheetVariable } from "ao3-tg-shared";
 
 export type AppContext = Context<{ Bindings: Env }>;
 
@@ -164,3 +164,53 @@ export const variables: StyleSheetVariable[] = [
         description: 'Monospace font'
     }
 ];
+
+export const sheets: StyleSheetFileInfo[] = [
+    {
+        name: 'General',
+        media: 'all',
+        path: '/media-all.css',
+        importance: 'required'
+    },
+    {
+        name: 'Midsize',
+        media: 'only screen and (max-width: 62em)',
+        path: '/media-midsize.css',
+        importance: 'recommended'
+    },
+    {
+        name: 'Narrow',
+        media: 'only screen and (max-width: 42em)',
+        path: '/media-narrow.css',
+        importance: 'recommended'
+    },
+    {
+        name: 'Aural',
+        media: 'speech',
+        path: '/media-aural.css',
+        importance: 'optional'
+    },
+    {
+        name: 'Print',
+        media: 'print',
+        path: '/media-print.css',
+        importance: 'optional'
+    }
+];
+
+export async function fetchAsset(c: AppContext, sheet: StyleSheetFileInfo): Promise<StyleSheetInfo | undefined> {
+    const assetsUrl = new URL(sheet.path, c.req.url);
+    const res = await c.env.ASSETS.fetch(assetsUrl);
+    const content = await res.text();
+
+    if(!res.ok) {
+        return;
+    }
+
+    return {
+        name: sheet.name,
+        contents: content,
+        media: sheet.media,
+        importance: sheet.importance
+    };
+}

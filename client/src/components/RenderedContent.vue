@@ -42,6 +42,10 @@
                 height: 100%;
                 overflow: auto;
             }
+
+            .__body_placeholder__ > * {
+                pointer-events: none;
+            }
         `);
 
         for(const stylesheet of stylesheets) {

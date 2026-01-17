@@ -6,7 +6,7 @@ import { PageResponse } from "ao3-tg-shared";
 
 export class Pages extends OpenAPIRoute {
     async handle(c: AppContext) {
-        const path = '/';
+        const path = '/works';
         const pageUrl = new URL(`/${encodePageName(path)}`, c.req.url);
         const pageRes = await c.env.ASSETS.fetch(pageUrl);
         const pageContent = await pageRes.text();

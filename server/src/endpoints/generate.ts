@@ -1,8 +1,47 @@
-import { OpenAPIRoute } from "chanfana";
-import { AppContext } from "@/types";
+import { OpenAPIRoute, contentJson } from "chanfana";
+import { z } from "zod";
+import { AppContext, fetchAsset, sheets } from "@/types";
+import postcss from "postcss";
+import { processPlugins } from "@/functions/css-plugins.ts";
+import { StyleSheetInfo, GenerateResponse } from "ao3-tg-shared";
 
 export class Generate extends OpenAPIRoute {
+    schema = {
+        request: {
+            body: contentJson(z.array(z.array(z.string()))),
+        },
+        responses: {
+            // ... responses
+        },
+    };
+
     async handle(c: AppContext) {
-        return Response.json(null, {status: 403})
+        const data = await this.getValidatedData<typeof this.schema>();
+        const body = data.body;
+
+        // TODO: this is NOT safe
+        const variableSheet = `:root{${body.map(i => `${i[0]}: ${i[1]}`).join(';')}}`;
+
+        const postCss = postcss(processPlugins);
+
+        const stylesheets: StyleSheetInfo[] = await Promise.all(sheets.map(async s => {
+            const rawSheet = await fetchAsset(c, s);
+            const merged = variableSheet + (rawSheet?.contents ?? '');
+
+            const results = await postCss.process(merged, {from: undefined});
+
+            return {
+                name: s.name,
+                media: s.media,
+                importance: s.importance,
+                contents: results.css
+            };
+        }));
+
+        const response: GenerateResponse = {
+            stylesheets: stylesheets
+        };
+
+        return Response.json(response);
     }
 }

@@ -2,6 +2,17 @@
 
 > This project is in the middle of restructuring. Existing functionality of building the site skin locally will be back.
 
+## TODO
+
+Functionality
+- Display AO3 image assets
+- Handle AO3 navigation links (temporary solution: disabled interactions)
+
+Reliability and UX
+- Request validation
+- Loading screens and progress bars
+- Live install walkthrough with UI
+
 ## Installation
 
 ### 1. Get skin files

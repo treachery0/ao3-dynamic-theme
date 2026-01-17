@@ -2,27 +2,30 @@
     import { computed, onMounted, ref } from "vue";
     import RenderedAo3Page from "@/components/RenderedAo3Page.vue";
     import { fetchAPI } from "@/functions/api.ts";
-    import { AssetsResponse, PageResponse } from "ao3-tg-shared";
+    import { AssetsResponse, PageResponse, GenerateResponse, createMediaQueryWrapped, createRule, createProperty } from "ao3-tg-shared";
     import AppFooter from "@/components/AppFooter.vue";
+    import ThemeDisplay from "@/components/ThemeDisplay.vue";
+    import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
 
     const assets = ref<AssetsResponse>();
     const pages = ref<PageResponse>();
+    const generated = ref<GenerateResponse>();
 
-    const variableValues = ref<string[]>();
+    const variableValues = useReactiveStorage<string[]>('tg-values');
 
     const stylesheets = computed<string[]>(() => {
         if(!assets.value) {
             return [];
         }
 
-        const variableStrings = [
+        const properties = [
             `--color-base-content: ${variableValues.value}`,
-            ...assets.value.variables.map((v, i) => `${v.key}: ${variableValues.value ? (variableValues.value[i] ?? v.default) : v.default}${v.unit ?? ''}`)
+            ...assets.value.variables.map((v, i) => createProperty(v.key,`${variableValues.value ? (variableValues.value[i] ?? v.default) : v.default}${v.unit ?? ''}`))
         ];
 
         return [
-            `*{${variableStrings.join(';')}}`,
-            ...assets.value.stylesheets.map(s => `@media ${s.media} {${s.contents}}`)
+            createRule('*', properties),
+            ...assets.value.stylesheets.map(stylesheet => createMediaQueryWrapped(stylesheet.media, stylesheet.contents))
         ];
     });
 
@@ -51,7 +54,57 @@
         }
 
         assets.value = await response.json();
+
+        if(!variableValues.value) {
+            resetVariables();
+        }
+    }
+
+    function resetVariables() {
         variableValues.value = assets.value?.variables.map(v => v.default) ?? [];
+    }
+
+    async function getGenerated() {
+        if(!assets.value || !variableValues.value) {
+            return;
+        }
+
+        const values = getVariableValues();
+
+        if(!values) {
+            return;
+        }
+
+        const body = JSON.stringify(values);
+
+        const response = await fetchAPI('/api/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: body
+        });
+
+        generated.value = await response.json();
+    }
+
+    function getVariableValues() {
+        if(!assets.value || !variableValues.value) {
+            return;
+        }
+
+        const results: [string, string][] = [];
+
+        for(let i = 0; i < assets.value.variables.length; i++) {
+            const key = assets.value.variables[i]!.key;
+            const value = variableValues.value[i] ?? assets.value.variables[i]!.default;
+
+            results.push([key, value])
+        }
+
+        return results;
+    }
+
+    function clearGenerated() {
+        generated.value = undefined;
     }
 </script>
 
@@ -63,13 +116,24 @@
                 <span class="flex items-center">
                     <input
                         :type="v.type"
-                        :placeholder="v.default"
                         v-model="variableValues[i]"
                         class="input input-sm"
                     />
                     <span v-if="v.unit" class="w-10 ps-1">{{ v.unit }}</span>
                 </span>
             </fieldset>
+        </div>
+
+        <div class="mx-6">
+            <button class="btn btn-success btn-outline" @click="getGenerated">Generate theme</button>
+            <button class="btn btn-error btn-outline ms-4" @click="clearGenerated">Clear generated theme</button>
+            <button class="btn btn-error btn-outline ms-4" @click="resetVariables">Reset all values</button>
+
+            <theme-display
+                v-if="generated"
+                :stylesheets="generated.stylesheets"
+                class="my-4"
+            />
         </div>
 
         <rendered-ao3-page
@@ -79,11 +143,6 @@
             :stylesheets="stylesheets"
             class="mx-4"
         />
-
-        <div class="mx-12 text-3xl text-error flex items-center justify-center gap-12">
-            <div>Work in progress, most things aren't functional!</div>
-            <img src="/hopital.jpeg" width="240" class="object-contain" alt="caffeine is my primary source of sustenance"/>
-        </div>
 
         <app-footer/>
     </main>
