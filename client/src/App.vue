@@ -1,70 +1,43 @@
 <script setup lang="ts">
-    import { computed, onMounted, ref, watch } from "vue";
-    import RenderedAo3Page from "@/components/RenderedAo3Page.vue";
-    import { fetchAPI } from "@/functions/api.ts";
-    import { AssetsResponse, PageResponse, GenerateResponse, createMediaQueryWrapped, createRule, createProperty } from "ao3-tg-shared";
-    import AppFooter from "@/components/AppFooter.vue";
-    import ThemeDisplay from "@/components/ThemeDisplay.vue";
+    import { computed, onMounted, ref } from "vue";
+    import { AssetsResponse, GenerateResponse, createMediaQueryWrapped, createRule, createProperty, CssFileResult, CssVariableInfo } from "ao3-tg-shared";
     import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
+    import { fetchAssets, fetchTheme } from "@/functions/api.ts";
+    import Page from "@/components/Page.vue";
+    import AppFooter from "@/components/AppFooter.vue";
+    import ThemeResult from "@/components/ThemeResult.vue";
+    import VariableSettings from "@/components/VariableSettings.vue";
+    import AppHeader from "@/components/AppHeader.vue";
 
-    const assets = ref<AssetsResponse>();
-    const pages = ref<PageResponse>();
-    const generated = ref<GenerateResponse>();
-    const url = ref<string>('');
+    // ------ PAGE PREVIEWS ------
 
-    const variableValues = useReactiveStorage<string[]>('tg-values');
+    const url = useReactiveStorage<string>('tg-page-url', () => '/works');
 
-    const stylesheets = computed<string[]>(() => {
-        if(!assets.value) {
-            return [];
-        }
+    // ------ ASSET LOADING ------
 
-        const properties = [
-            `--color-base-content: ${variableValues.value}`,
-            ...assets.value.variables.map((v, i) => createProperty(v.name, `${variableValues.value ? (variableValues.value[i] ?? v.default) : v.default}${v.unit ?? ''}`))
-        ];
+    const assetStyleSheets = ref<CssFileResult[]>();
+    const assetVariables = ref<CssVariableInfo[]>();
 
-        return [
-            createRule('*', properties),
-            createRule('[data-nav-link="true"]', [createProperty('cursor', 'pointer')]),
-            ...assets.value.stylesheets.map(stylesheet => createMediaQueryWrapped(stylesheet.media, stylesheet.css))
-        ];
+    const variableValues = useReactiveStorage<string[]>('tg-variables', () => {
+        return getDefaultVariableValues();
     });
 
     onMounted(async () => {
-        await getPage();
         await getAssets();
     })
 
-    watch(url, async value => {
-        await getPage(new URL(value).pathname);
-    });
-
-    async function getPage(path: string = '/') {
-        const params = new URLSearchParams({
-            url: path
-        });
-
-        const response = await fetchAPI(`/api/pages?${params}`);
-
-        if(!response.ok) {
-            console.error('Request failed:', response.statusText);
-            return;
-        }
-
-        pages.value = await response.json();
-        url.value = pages.value?.page.url ?? '';
-    }
-
     async function getAssets() {
-        const response = await fetchAPI('/api/assets');
+        const response = await fetchAssets();
 
         if(!response.ok) {
             console.error('Request failed:', response.statusText);
             return;
         }
 
-        assets.value = await response.json();
+        const data: AssetsResponse = await response.json();
+
+        assetVariables.value = data.variables;
+        assetStyleSheets.value = data.stylesheets;
 
         if(!variableValues.value) {
             resetVariables();
@@ -72,41 +45,46 @@
     }
 
     function resetVariables() {
-        variableValues.value = assets.value?.variables.map(v => v.default) ?? [];
+        variableValues.value = getDefaultVariableValues();
     }
 
-    async function getGenerated() {
-        if(!assets.value || !variableValues.value) {
-            return;
-        }
+    function getDefaultVariableValues() {
+        return assetVariables.value?.map(v => v.default) ?? [];
+    }
 
+    // ------ GENERATED STYLESHEETS ------
+
+    const generatedStyleSheets = ref<CssFileResult[]>();
+
+    async function generateTheme() {
         const values = getVariableValues();
 
         if(!values) {
             return;
         }
 
-        const body = JSON.stringify(values);
+        const response = await fetchTheme(values);
 
-        const response = await fetchAPI('/api/generate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: body
-        });
+        if(!response.ok) {
+            console.error('Request failed:', response.statusText);
+            return;
+        }
 
-        generated.value = await response.json();
+        const data: GenerateResponse = await response.json();
+
+        generatedStyleSheets.value = data.stylesheets;
     }
 
     function getVariableValues() {
-        if(!assets.value || !variableValues.value) {
+        if(!assetVariables.value || !variableValues.value) {
             return;
         }
 
         const results: [string, string][] = [];
 
-        for(let i = 0; i < assets.value.variables.length; i++) {
-            const key = assets.value.variables[i]!.name;
-            const value = variableValues.value[i] ?? assets.value.variables[i]!.default;
+        for(let i = 0; i < assetVariables.value.length; i++) {
+            const key = assetVariables.value[i]!.key;
+            const value = variableValues.value[i] ?? assetVariables.value[i]!.default;
 
             results.push([key, value])
         }
@@ -115,51 +93,90 @@
     }
 
     function clearGenerated() {
-        generated.value = undefined;
+        generatedStyleSheets.value = undefined;
     }
 
-    function updateUrl(value: string) {
-        url.value = value;
+    // ------ PREVIEWED STYLESHEETS ------
+
+    const previewStyleSheets = computed<string[]>(() => {
+        if(!assetStyleSheets.value || !assetVariables.value) {
+            return [];
+        }
+
+        return getPreviewStyleSheets(assetStyleSheets.value, assetVariables.value, variableValues.value);
+    });
+
+    function getPreviewStyleSheets(stylesheets: CssFileResult[], variables: CssVariableInfo[], variableValues: string[]): string[] {
+        const properties = variables.map((v, i) => getVariableProperty(v, variableValues[i]));
+        const variableStyleSheet = createRule('*', properties);
+        const fixLinkStyleSheet = createRule('[data-nav-link="true"]', [createProperty('cursor', 'pointer')]);
+
+        return [
+            variableStyleSheet,
+            fixLinkStyleSheet,
+            ...stylesheets.map(s => createMediaQueryWrapped(s.media, s.css))
+        ];
+    }
+
+    function getVariableProperty(variableInfo: CssVariableInfo, definedValue?: string): string {
+        const unit = variableInfo.unit ?? '';
+        const value = definedValue ?? variableInfo.default;
+
+        return createProperty(variableInfo.key, `${value}${unit}`)
     }
 </script>
 
 <template>
-    <main class="flex flex-col gap-8 min-h-full overflow-auto">
-        <div v-if="assets && variableValues" class="mt-4 flex gap-x-6 gap-y-2 flex-wrap px-6 py-2 bg-base-300">
-            <fieldset v-for="(v, i) in assets.variables" class="fieldset w-40">
-                <legend class="fieldset-legend">{{ v.description }}</legend>
-                <span class="flex items-center">
-                    <input
-                        :type="v.type"
-                        v-model="variableValues[i]"
-                        class="input input-sm"
-                    />
-                    <span v-if="v.unit" class="w-10 ps-1">{{ v.unit }}</span>
-                </span>
-            </fieldset>
+    <main class="flex flex-col h-full">
+        <app-header/>
+
+        <div class="grow relative">
+            <div class="absolute inset-0 flex">
+                <!-- left panel -->
+                <div class="relative w-72">
+                    <div class="absolute inset-0 overflow-auto">
+                        <div class="sidebar border-base-300 border-e p-3">
+                            <div class="grid gap-2">
+                                <button class="btn btn-sm btn-success btn-outline" @click="generateTheme">Generate theme</button>
+                                <button class="btn btn-sm btn-error btn-outline" @click="clearGenerated">Clear generated theme</button>
+                                <button class="btn btn-sm btn-error btn-outline" @click="resetVariables">Reset variables</button>
+                            </div>
+
+                            <variable-settings
+                                v-if="assetVariables"
+                                :variables="assetVariables"
+                                v-model="variableValues"
+                            />
+
+                            <theme-result
+                                v-if="generatedStyleSheets"
+                                :stylesheets="generatedStyleSheets"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- right panel -->
+                <div class="relative grow">
+                    <div class="absolute inset-0 overflow-auto">
+                        <page
+                            v-model="url"
+                            :stylesheets="previewStyleSheets"
+                            base-url="https://archiveofourown.org"
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="mx-6">
-            <button class="btn btn-success btn-outline" @click="getGenerated">Generate theme</button>
-            <button class="btn btn-error btn-outline ms-4" @click="clearGenerated">Clear generated theme</button>
-            <button class="btn btn-error btn-outline ms-4" @click="resetVariables">Reset all values</button>
-
-            <theme-display
-                v-if="generated"
-                :stylesheets="generated.stylesheets"
-                class="my-4"
-            />
-        </div>
-
-        <rendered-ao3-page
-            v-if="pages"
-            :url="url"
-            :html="pages.page.html"
-            :stylesheets="stylesheets"
-            class="mx-4"
-            @update-url="updateUrl"
-        />
 
         <app-footer/>
     </main>
 </template>
+
+<style scoped>
+    .sidebar > *:not(:last-child) {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 3px double;
+    }
+</style>

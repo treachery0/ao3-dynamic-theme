@@ -1,6 +1,8 @@
 <template>
-    <footer class="border-t border-base-content/30 text-xs font-mono text-emerald-300 px-3 py-1 mt-auto flex items-center justify-end gap-8">
-        <a href="https://github.com/treachxry/ao3-theme-generator" class="link">ao3 theme generator</a>
-        <span>made by <a href="https://github.com/treachxry" class="link">treachxry</a></span>
+    <footer class="bg-base-200 text-primary text-xs font-mono border-t border-base-content/30">
+        <div class="flex items-center justify-end gap-8 px-8 py-1">
+            <a href="https://github.com/treachxry/ao3-theme-generator" class="link link-primary">Source code</a>
+            <span>Made by <a href="https://github.com/treachxry" class="link link-primary">treachxry</a></span>
+        </div>
     </footer>
 </template>

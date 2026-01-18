@@ -1,163 +1,161 @@
 import { CssFileInfo, CssVariableInfo } from "ao3-tg-shared";
 
-
-
 export const variables: CssVariableInfo[] = [
     {
-        name: '--color-base-100',
+        key: '--color-base-100',
         type: 'color',
-        default: 'oklch(16% 0.005 240)',
-        description: 'Base color (darkest)'
+        default: '#0b0e0f',
+        description: 'Base (darkest)'
     },
     {
-        name: '--color-base-200',
+        key: '--color-base-200',
         type: 'color',
-        default: 'oklch(20% 0.005 240)',
-        description: 'Base color (dark)'
+        default: '#141618',
+        description: 'Base (dark)'
     },
     {
-        name: '--color-base-300',
+        key: '--color-base-300',
         type: 'color',
-        default: 'oklch(24% 0.005 240)',
-        description: 'Base color (lighter)'
+        default: '#1d2021',
+        description: 'Base (lighter)'
     },
     {
-        name: '--color-base-content',
+        key: '--color-base-content',
         type: 'color',
-        default: 'oklch(88% 0.005 245)',
-        description: 'Base text color'
+        default: '#d5d8db',
+        description: 'Base text'
     },
     {
-        name: '--color-primary',
+        key: '--color-primary',
         type: 'color',
-        default: 'oklch(40% 0.176 29.23)',
-        description: 'Primary color'
+        default: '#8f0000',
+        description: 'Primary'
     },
     {
-        name: '--color-primary-content',
+        key: '--color-primary-content',
         type: 'color',
-        default: 'oklch(88% 0.005 245)',
-        description: 'Primary text color'
+        default: '#d5d8db',
+        description: 'Primary text'
     },
     {
-        name: '--color-secondary',
+        key: '--color-secondary',
         type: 'color',
-        default: 'oklch(75% 0.12 60)',
-        description: 'Secondary color'
+        default: '#e59b5b',
+        description: 'Secondary'
     },
     {
-        name: '--color-secondary-content',
+        key: '--color-secondary-content',
         type: 'color',
-        default: 'oklch(14% 0.033 60)',
-        description: 'Secondary text color'
+        default: '#130600',
+        description: 'Secondary text'
     },
     {
-        name: '--color-accent',
+        key: '--color-accent',
         type: 'color',
-        default: 'oklch(71% 0.12 310)',
-        description: 'Accent color'
+        default: '#b88cd9',
+        description: 'Accent'
     },
     {
-        name: '--color-accent-content',
+        key: '--color-accent-content',
         type: 'color',
-        default: 'oklch(14% 0.033 300)',
-        description: 'Accent text color'
+        default: '#0b0615',
+        description: 'Accent text'
     },
     {
-        name: '--color-neutral',
+        key: '--color-neutral',
         type: 'color',
-        default: 'oklch(27% 0.01 240)',
-        description: 'Neutral color'
+        default: '#22272b',
+        description: 'Neutral'
     },
     {
-        name: '--color-neutral-content',
+        key: '--color-neutral-content',
         type: 'color',
-        default: 'oklch(70% 0.01 240)',
-        description: 'Neutral text color'
+        default: '#999fa4',
+        description: 'Neutral text'
     },
     {
-        name: '--color-info',
+        key: '--color-info',
         type: 'color',
-        default: 'oklch(85% 0.085 206)',
-        description: 'Info color'
+        default: '#87dee9',
+        description: 'Info'
     },
     {
-        name: '--color-info-content',
+        key: '--color-info-content',
         type: 'color',
-        default: 'oklch(17% 0.017 206)',
-        description: 'Info text color'
+        default: '#061213',
+        description: 'Info text'
     },
     {
-        name: '--color-success',
+        key: '--color-success',
         type: 'color',
-        default: 'oklch(85% 0.085 145)',
-        description: 'Success color'
+        default: '#abddac',
+        description: 'Success'
     },
     {
-        name: '--color-success-content',
+        key: '--color-success-content',
         type: 'color',
-        default: 'oklch(17% 0.015 145)',
-        description: 'Success text color'
+        default: '#0b110b',
+        description: 'Success text'
     },
     {
-        name: '--color-warning',
+        key: '--color-warning',
         type: 'color',
-        default: 'oklch(85% 0.085 75)',
-        description: 'Warning color'
+        default: '#efc68f',
+        description: 'Warning'
     },
     {
-        name: '--color-warning-content',
+        key: '--color-warning-content',
         type: 'color',
-        default: 'oklch(17% 0.015 75)',
-        description: 'Warning text color'
+        default: '#130f08',
+        description: 'Warning text'
     },
     {
-        name: '--color-error',
+        key: '--color-error',
         type: 'color',
-        default: 'oklch(85% 0.085 16)',
-        description: 'Error color'
+        default: '#ffb8bb',
+        description: 'Error'
     },
     {
-        name: '--color-error-content',
+        key: '--color-error-content',
         type: 'color',
-        default: 'oklch(17% 0.015 16)',
-        description: 'Error text color'
+        default: '#150d0d',
+        description: 'Error text'
     },
     {
-        name: '--ui-density',
+        key: '--ui-density',
         type: 'number',
         default: '0.125',
         unit: 'rem',
-        description: 'Space between elements'
+        description: 'Spacing'
     },
     {
-        name: '--ui-roundness',
+        key: '--ui-roundness',
         type: 'number',
         default: '0.125',
         unit: 'rem',
         description: 'Border radius'
     },
     {
-        name: '--ui-border',
+        key: '--ui-border',
         type: 'number',
         default: '1',
         unit: 'px',
         description: 'Border width'
     },
     {
-        name: '--font-serif',
+        key: '--font-serif',
         type: 'text',
         default: "'Georgia', serif",
         description: 'Serif font'
     },
     {
-        name: '--font-sans',
+        key: '--font-sans',
         type: 'text',
         default: "'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Helvetica', sans-serif, 'GNU Unifont'",
         description: 'Sans-serif font'
     },
     {
-        name: '--font-mono',
+        key: '--font-mono',
         type: 'text',
         default: "'Monaco', 'Consolas', 'Courier', monospace",
         description: 'Monospace font'
@@ -184,7 +182,7 @@ export const sheets: CssFileInfo[] = [
         importance: 'recommended'
     },
     {
-        description: 'Aural',
+        description: 'Speech',
         media: 'speech',
         filename: 'media-aural.css',
         importance: 'optional'

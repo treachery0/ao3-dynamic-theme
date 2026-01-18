@@ -5,8 +5,9 @@
 ## TODO
 
 Functionality
-- Display AO3 image assets
-- Handle AO3 navigation links (temporary solution: disabled interactions)
+- navigation links (temporary solution: disabled interactions)
+  - Disabled links are not styled correctly
+  - Simulate navigation by changing the URL
 
 Reliability and UX
 - Request validation

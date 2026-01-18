@@ -1,8 +1,11 @@
 import { ref, Ref, watch } from "vue";
 
-export function useReactiveStorage<T>(key: string): Ref<T | null> {
+export function useReactiveStorage<T>(key: string): Ref<T | null>;
+export function useReactiveStorage<T>(key: string, getDefault: () => T): Ref<T>;
+
+export function useReactiveStorage<T>(key: string, getDefault?: () => T): Ref<T | null> {
     const handler = useStorage<T>(localStorage, key);
-    const result = ref<T | null>(handler.load()) as Ref<T | null>;
+    const result = ref<T | null>(handler.load() ?? (getDefault ? getDefault() : null)) as Ref<T | null>;
 
     watch(result, (value) => {
         if(value !== null) {

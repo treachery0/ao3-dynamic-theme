@@ -63,19 +63,4 @@ function cleanDocument(dom: JSDOM): void {
 
         element.src = `/ao3-theme-generator${url.pathname}`;
     });
-
-    // fix navigation links
-    doc.querySelectorAll('a[href]').forEach(el => {
-        const element = el as HTMLLinkElement;
-        const url = new URL(element.href);
-
-        element.removeAttribute('href');
-
-        if(url.host !== dom.window.location.host) {
-            return;
-        }
-
-        element.dataset.navLink = 'true';
-        element.dataset.navHref = url.pathname;
-    });
 }

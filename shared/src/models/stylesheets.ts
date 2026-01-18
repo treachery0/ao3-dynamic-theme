@@ -12,7 +12,7 @@ export type CssFileResult = CssFileInfo & {
 export type CssFileImportance = 'optional' | 'recommended' | 'required'
 
 export type CssVariableInfo = {
-    name: string
+    key: string
     description: string
     default: string
     unit?: string

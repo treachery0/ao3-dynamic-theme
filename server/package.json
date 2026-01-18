@@ -3,10 +3,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "npm run prebuild && wrangler dev",
+    "dev": "wrangler dev",
     "deploy": "npm run prebuild && wrangler deploy",
     "prebuild": "tsx src/prebuild.ts",
-    "cf-typegen": "wrangler types"
+    "types": "wrangler types"
   },
   "dependencies": {
     "@csstools/postcss-color-mix-function": "^3.0.0",

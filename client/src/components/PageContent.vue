@@ -6,6 +6,10 @@
         stylesheets?: string[]
     }>();
 
+    const emits = defineEmits<{
+        (e: 'navigate', url: string): void
+    }>();
+
     const containerEl = useTemplateRef('container');
     const shadowRoot = ref<ShadowRoot>();
 
@@ -61,6 +65,28 @@
                 </div>
             </div>
         `;
+
+        setupNavigation();
+    }
+
+    function setupNavigation() {
+        shadowRoot.value?.querySelector('.__body_placeholder__')?.addEventListener('click', e => {
+            e.preventDefault();
+
+            if(!(e.target instanceof Element)) {
+                return;
+            }
+
+            const link = e.target.closest('a');
+
+            if(!(link instanceof HTMLAnchorElement) || !link.href) {
+                return;
+            }
+
+            const url = new URL(link.href);
+
+            emits('navigate', url.pathname);
+        });
     }
 
     async function addStyleSheet(css: string) {
@@ -76,7 +102,5 @@
 </script>
 
 <template>
-    <div
-        ref="container"
-    />
+    <div ref="container"/>
 </template>
