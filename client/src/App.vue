@@ -17,10 +17,7 @@
 
     const assetStyleSheets = ref<CssFileResult[]>();
     const assetVariables = ref<CssVariableInfo[]>();
-
-    const variableValues = useReactiveStorage<string[]>('tg-variables', () => {
-        return getDefaultVariableValues();
-    });
+    const variableValues = useReactiveStorage<string[]>('tg-variables');
 
     onMounted(async () => {
         await getAssets();
@@ -49,7 +46,7 @@
     }
 
     function getDefaultVariableValues() {
-        return assetVariables.value?.map(v => v.default) ?? [];
+        return assetVariables.value?.map(v => v.default) ?? null;
     }
 
     // ------ GENERATED STYLESHEETS ------
@@ -99,7 +96,7 @@
     // ------ PREVIEWED STYLESHEETS ------
 
     const previewStyleSheets = computed<string[]>(() => {
-        if(!assetStyleSheets.value || !assetVariables.value) {
+        if(!assetStyleSheets.value || !assetVariables.value || !variableValues.value) {
             return [];
         }
 
@@ -143,7 +140,7 @@
                             </div>
 
                             <variable-settings
-                                v-if="assetVariables"
+                                v-if="assetVariables && variableValues"
                                 :variables="assetVariables"
                                 v-model="variableValues"
                             />
