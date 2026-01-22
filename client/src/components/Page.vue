@@ -2,7 +2,7 @@
     import { onMounted, ref, watch } from "vue";
     import { House } from "lucide-vue-next";
     import { fetchPages } from "@/functions/api.ts";
-    import { PageResponse } from "ao3-tg-shared";
+    import { HtmlAsset } from "shared/models";
     import PageContent from "@/components/PageContent.vue";
     import PageUrl from "@/components/PageUrl.vue";
 
@@ -44,9 +44,9 @@
                 return;
             }
 
-            const data: PageResponse = await response.json();
+            const data: HtmlAsset = await response.json();
 
-            html.value = data.page.html;
+            html.value = data.content;
         }
         catch(e: any) {
             if(e.name === 'AbortError') {

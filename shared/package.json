@@ -1,5 +1,14 @@
 {
-  "name": "ao3-tg-shared",
+  "name": "shared",
   "type": "module",
-  "types": "index.ts"
+  "exports": {
+    "./models": "./src/models.ts",
+    "./functions": "./src/functions.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "./models/*": ["./src/models/*"],
+      "./functions/*": ["./src/functions/*"]
+    }
+  }
 }

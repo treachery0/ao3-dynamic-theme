@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { CssFileResult } from "ao3-tg-shared";
+    import { StyleSheetAsset } from "shared/models";
     import ThemeResultFragment from "@/components/ThemeResultFragment.vue";
 
     const {stylesheets} = defineProps<{
-        stylesheets: CssFileResult[]
+        stylesheets: StyleSheetAsset[]
     }>();
 </script>
 

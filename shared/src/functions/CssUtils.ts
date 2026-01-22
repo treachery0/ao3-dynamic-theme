@@ -10,6 +10,6 @@ export function createRule(rule: string, properties: string[]): string {
     return `${rule}{${properties.join(';')}}`;
 }
 
-export function mergeRules(rules: string[]): string {
+export function mergeRules(...rules: string[]): string {
     return rules.join('');
 }

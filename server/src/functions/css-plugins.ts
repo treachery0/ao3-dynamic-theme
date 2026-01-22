@@ -10,16 +10,13 @@ import postcssNested from "postcss-nested";
 import postcssRewriteURL from "@csstools/postcss-rewrite-url";
 import postcssMinify from "@csstools/postcss-minify";
 import cssFunctions from "./css-functions";
+import { CssPluginOptions } from "@/models/CssPluginOptions";
+import { CssAssetType } from "@/models/CssAssetType";
 
-export interface PluginOptions {
-    step: 'prepare' | 'process'
-    baseUrl?: string
-}
-
-export function getPlugins(options: PluginOptions) {
+export function getPlugins(options: CssPluginOptions) {
     const plugins = [];
 
-    if(options.step === 'prepare') {
+    if(options.type === CssAssetType.PREPARED) {
         plugins.push(
             postcssImports,
             postcssFunctions({
@@ -42,7 +39,7 @@ export function getPlugins(options: PluginOptions) {
             postcssMinify
         );
     }
-    else if(options.step === 'process') {
+    else if(options.type === CssAssetType.RAW) {
         plugins.push(
             postcssOklabFunction({
                 preserve: false,

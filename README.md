@@ -9,7 +9,7 @@ Styles
 - Link border width variable to styles
 
 Pages
-- Navigate to any URL
+- Cache page instead of requesting AO3 every time
 
 UI/UX
 - Nicer color settings

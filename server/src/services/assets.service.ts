@@ -14,5 +14,5 @@ export async function writeServerAsset(path: string, data: string): Promise<void
     await mkdir(directory, {recursive: true});
     await writeFile(fullPath, data, 'utf-8');
 
-    console.log('[SERVER ASSETS]', 'Created', fullPath);
+    console.info('[SERVER ASSETS]', 'Created', fullPath);
 }

@@ -1,4 +1,4 @@
-import { generateStyles } from "@/functions/generate-styles";
+import { generateStyles } from "@/functions/css-generation";
 
 await Promise.all([
     generateStyles(false),

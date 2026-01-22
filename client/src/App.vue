@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from "vue";
-    import { AssetsResponse, GenerateResponse, createMediaQueryWrapped, createRule, createProperty, CssFileResult, CssVariableInfo, getHostUrl } from "ao3-tg-shared";
+    import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, CssVariableInfo } from "shared/models";
+    import { createMediaQueryWrapped, createRule, createProperty, getHostUrl } from "shared/functions";
     import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
     import { fetchAssets, fetchTheme } from "@/functions/api.ts";
     import Page from "@/components/Page.vue";
@@ -15,7 +16,7 @@
 
     // ------ ASSET LOADING ------
 
-    const assetStyleSheets = ref<CssFileResult[]>();
+    const assetStyleSheets = ref<StyleSheetAsset[]>();
     const assetVariables = ref<CssVariableInfo[]>();
     const variableValues = useReactiveStorage<string[]>('tg-variables');
 
@@ -31,7 +32,7 @@
             return;
         }
 
-        const data: AssetsResponse = await response.json();
+        const data: StyleSheetBundle = await response.json();
 
         assetVariables.value = data.variables;
         assetStyleSheets.value = data.stylesheets;
@@ -51,7 +52,7 @@
 
     // ------ GENERATED STYLESHEETS ------
 
-    const generatedStyleSheets = ref<CssFileResult[]>();
+    const generatedStyleSheets = ref<StyleSheetAsset[]>();
 
     async function generateTheme() {
         const values = getVariableValues();
@@ -67,7 +68,7 @@
             return;
         }
 
-        const data: GenerateResponse = await response.json();
+        const data: ThemeInfo = await response.json();
 
         generatedStyleSheets.value = data.stylesheets;
     }
@@ -103,13 +104,13 @@
         return getPreviewStyleSheets(assetStyleSheets.value, assetVariables.value, variableValues.value);
     });
 
-    function getPreviewStyleSheets(stylesheets: CssFileResult[], variables: CssVariableInfo[], variableValues: string[]): string[] {
+    function getPreviewStyleSheets(stylesheets: StyleSheetAsset[], variables: CssVariableInfo[], variableValues: string[]): string[] {
         const properties = variables.map((v, i) => getVariableProperty(v, variableValues[i]));
         const variableStyleSheet = createRule('*', properties);
 
         return [
             variableStyleSheet,
-            ...stylesheets.map(s => createMediaQueryWrapped(s.media, s.css))
+            ...stylesheets.map(s => createMediaQueryWrapped(s.media, s.content))
         ];
     }
 

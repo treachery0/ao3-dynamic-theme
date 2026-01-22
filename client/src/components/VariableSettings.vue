@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { CssVariableInfo } from "ao3-tg-shared";
+    import { CssVariableInfo } from "shared/models";
 
     const {variables} = defineProps<{
         variables: CssVariableInfo[]
