@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { onMounted, ref, useTemplateRef, watch } from "vue";
+    import LoadingIndicator from "@/components/LoadingIndicator.vue";
 
     const {html = '', stylesheets = []} = defineProps<{
         html?: string
@@ -12,6 +13,7 @@
 
     const containerEl = useTemplateRef('container');
     const shadowRoot = ref<ShadowRoot>();
+    const ready = ref(false);
 
     onMounted(async () => {
         if(containerEl.value) {
@@ -20,6 +22,8 @@
 
         setHtml();
         await setCss();
+
+        ready.value = true;
     })
 
     watch(() => stylesheets, setCss, {immediate: true});
@@ -83,7 +87,7 @@
 
         htmlWrapper.appendChild(bodyWrapper);
 
-        while (doc.body.firstChild) {
+        while(doc.body.firstChild) {
             bodyWrapper.appendChild(doc.body.firstChild);
         }
 
@@ -138,5 +142,12 @@
 </script>
 
 <template>
-    <div ref="container"/>
+    <div>
+        <transition name="fade">
+            <div v-show="ready" ref="container"/>
+        </transition>
+        <div v-if="!ready" class="my-8">
+            <loading-indicator/>
+        </div>
+    </div>
 </template>

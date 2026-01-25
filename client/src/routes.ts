@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/routes/HomeView.vue";
 import SiteSkinEditorView from "@/routes/SiteSkinEditorView.vue";
 import WorkSkinEditorView from "@/routes/WorkSkinEditorView.vue";
@@ -10,6 +10,6 @@ const routes = [
 ];
 
 export const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHistory('/ao3-theme-generator'),
     routes,
 })

@@ -1,7 +1,7 @@
 import { StyleSheetAsset } from "./StyleSheetAsset";
-import { CssVariableInfo } from "./CssVariableInfo";
+import { Theme } from "../models";
 
 export interface StyleSheetBundle {
     stylesheets: StyleSheetAsset[]
-    variables: CssVariableInfo[]
+    theme: Theme
 }

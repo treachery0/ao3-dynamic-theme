@@ -1,4 +1,4 @@
-import { StyleSheetAssetInfo, CssVariableInfo, CssVariableType, StyleSheetAsset, StyleSheetImportance } from "shared/models";
+import { StyleSheetAssetInfo, StyleSheetAsset, StyleSheetImportance, Theme } from "shared/models";
 import { createProperty, createRule, mergeRules } from "shared/functions";
 import { join } from "node:path";
 import postcss from "postcss";
@@ -7,8 +7,8 @@ import { CssAssetType } from "@/models/CssAssetType";
 import { readServerAsset } from "@/services/assets.service";
 import { getPlugins } from "@/functions/css-plugins";
 
-export function getCssVariables() {
-    return variables;
+export function getTheme(): Theme {
+    return theme;
 }
 
 export async function generateCss(c: AppContext, variables: string[][]): Promise<StyleSheetAsset[]> {
@@ -55,167 +55,196 @@ async function readStyleAsset(context: AppContext, directory: string, file: Styl
     };
 }
 
-const variables: CssVariableInfo[] = [
-    {
-        key: '--color-base-100',
-        type: CssVariableType.Color,
-        default: '#0b0e0f',
-        description: 'Base (darkest)'
-    },
-    {
-        key: '--color-base-200',
-        type: CssVariableType.Color,
-        default: '#141618',
-        description: 'Base (dark)'
-    },
-    {
-        key: '--color-base-300',
-        type: CssVariableType.Color,
-        default: '#1d2021',
-        description: 'Base (lighter)'
-    },
-    {
-        key: '--color-base-content',
-        type: CssVariableType.Color,
-        default: '#d5d8db',
-        description: 'Base text'
-    },
-    {
-        key: '--color-primary',
-        type: CssVariableType.Color,
-        default: '#8f0000',
-        description: 'Primary'
-    },
-    {
-        key: '--color-primary-content',
-        type: CssVariableType.Color,
-        default: '#d5d8db',
-        description: 'Primary text'
-    },
-    {
-        key: '--color-secondary',
-        type: CssVariableType.Color,
-        default: '#e59b5b',
-        description: 'Secondary'
-    },
-    {
-        key: '--color-secondary-content',
-        type: CssVariableType.Color,
-        default: '#130600',
-        description: 'Secondary text'
-    },
-    {
-        key: '--color-accent',
-        type: CssVariableType.Color,
-        default: '#b88cd9',
-        description: 'Accent'
-    },
-    {
-        key: '--color-accent-content',
-        type: CssVariableType.Color,
-        default: '#0b0615',
-        description: 'Accent text'
-    },
-    {
-        key: '--color-neutral',
-        type: CssVariableType.Color,
-        default: '#22272b',
-        description: 'Neutral'
-    },
-    {
-        key: '--color-neutral-content',
-        type: CssVariableType.Color,
-        default: '#999fa4',
-        description: 'Neutral text'
-    },
-    {
-        key: '--color-info',
-        type: CssVariableType.Color,
-        default: '#87dee9',
-        description: 'Info'
-    },
-    {
-        key: '--color-info-content',
-        type: CssVariableType.Color,
-        default: '#061213',
-        description: 'Info text'
-    },
-    {
-        key: '--color-success',
-        type: CssVariableType.Color,
-        default: '#abddac',
-        description: 'Success'
-    },
-    {
-        key: '--color-success-content',
-        type: CssVariableType.Color,
-        default: '#0b110b',
-        description: 'Success text'
-    },
-    {
-        key: '--color-warning',
-        type: CssVariableType.Color,
-        default: '#efc68f',
-        description: 'Warning'
-    },
-    {
-        key: '--color-warning-content',
-        type: CssVariableType.Color,
-        default: '#130f08',
-        description: 'Warning text'
-    },
-    {
-        key: '--color-error',
-        type: CssVariableType.Color,
-        default: '#ffb8bb',
-        description: 'Error'
-    },
-    {
-        key: '--color-error-content',
-        type: CssVariableType.Color,
-        default: '#150d0d',
-        description: 'Error text'
-    },
-    {
-        key: '--ui-density',
-        type: CssVariableType.Number,
-        default: '0.125',
-        unit: 'rem',
-        description: 'Spacing'
-    },
-    {
-        key: '--ui-roundness',
-        type: CssVariableType.Number,
-        default: '0.125',
-        unit: 'rem',
-        description: 'Border radius'
-    },
-    {
-        key: '--ui-border',
-        type: CssVariableType.Number,
-        default: '1',
-        unit: 'px',
-        description: 'Border width'
-    },
-    {
-        key: '--font-serif',
-        type: CssVariableType.Text,
-        default: "'Georgia', serif",
-        description: 'Serif font'
-    },
-    {
-        key: '--font-sans',
-        type: CssVariableType.Text,
-        default: "'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Helvetica', sans-serif, 'GNU Unifont'",
-        description: 'Sans-serif font'
-    },
-    {
-        key: '--font-mono',
-        type: CssVariableType.Text,
-        default: "'Monaco', 'Consolas', 'Courier', monospace",
-        description: 'Monospace font'
-    }
-];
+const theme: Theme = {
+    colors: [
+        {
+            name: 'base',
+            items: [
+                {
+                    key: '--color-base-100',
+                    value: '#0b0e0f',
+                    label: '100'
+                },
+                {
+                    key: '--color-base-200',
+                    value: '#141618',
+                    label: '200'
+                },
+                {
+                    key: '--color-base-300',
+                    value: '#1d2021',
+                    label: '300'
+                },
+                {
+                    key: '--color-base-content',
+                    value: '#d5d8db',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'primary',
+            items: [
+                {
+                    key: '--color-primary',
+                    value: '#8f0000',
+                },
+                {
+                    key: '--color-primary-content',
+                    value: '#d5d8db',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'secondary',
+            items: [
+                {
+                    key: '--color-secondary',
+                    value: '#e59b5b',
+                },
+                {
+                    key: '--color-secondary-content',
+                    value: '#130600',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'accent',
+            items: [
+                {
+                    key: '--color-accent',
+                    value: '#b88cd9',
+                },
+                {
+                    key: '--color-accent-content',
+                    value: '#0b0615',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'neutral',
+            items: [
+                {
+                    key: '--color-neutral',
+                    value: '#22272b',
+                },
+                {
+                    key: '--color-neutral-content',
+                    value: '#999fa4',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'info',
+            items: [
+                {
+                    key: '--color-info',
+                    value: '#87dee9',
+                },
+                {
+                    key: '--color-info-content',
+                    value: '#061213',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'success',
+            items: [
+                {
+                    key: '--color-success',
+                    value: '#abddac',
+                },
+                {
+                    key: '--color-success-content',
+                    value: '#0b110b',
+                    isContent: true
+                },
+            ]
+        },
+        {
+            name: 'warning',
+            items: [
+                {
+                    key: '--color-warning',
+                    value: '#efc68f',
+                },
+                {
+                    key: '--color-warning-content',
+                    value: '#130f08',
+                    isContent: true
+                }
+            ]
+        },
+        {
+            name: 'error',
+            items: [
+                {
+                    key: '--color-error',
+                    value: '#ffb8bb',
+                },
+                {
+                    key: '--color-error-content',
+                    value: '#150d0d',
+                    isContent: true
+                }
+            ]
+        }
+    ],
+    fonts: [
+        {
+            key: '--font-serif',
+            value: "'Georgia', serif",
+            name: 'Serif font'
+        },
+        {
+            key: '--font-sans',
+            value: "'Lucida Grande', 'Lucida Sans Unicode', 'Verdana', 'Helvetica', sans-serif, 'GNU Unifont'",
+            name: 'Sans-serif font'
+        },
+        {
+            key: '--font-mono',
+            value: "'Monaco', 'Consolas', 'Courier', monospace",
+            name: 'Monospace font'
+        }
+    ],
+    radius: [
+        {
+            key: '--ui-roundness',
+            name: 'Roundness',
+            value: 0.125,
+            unit: 'rem',
+            description: 'Border radius',
+            possibleValues: [0, 0.125, 0.25, 0.5, 999]
+        }
+    ],
+    sizes: [
+        {
+            key: '--ui-density',
+            name: 'Density',
+            value: 0.125,
+            unit: 'rem',
+            description: 'Spacing',
+            min: 0,
+            max: 0.5,
+            step: 0.0625
+        },
+        {
+            key: '--ui-border',
+            name: 'Border',
+            value: 1,
+            unit: 'px',
+            description: 'Border width',
+            min: 1,
+            max: 3,
+            step: 1
+        }
+    ]
+}
 
 const sheets: StyleSheetAssetInfo[] = [
     {

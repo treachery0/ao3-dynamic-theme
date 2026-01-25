@@ -8,9 +8,6 @@ Styles
 - Download skin as one zip file
 - Link border width variable to styles
 
-Pages
-- Cache page instead of requesting AO3 every time
-
 UI/UX
 - Nicer color settings
 - Fix mobile layout

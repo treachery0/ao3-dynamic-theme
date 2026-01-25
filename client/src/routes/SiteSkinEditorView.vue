@@ -1,58 +1,71 @@
 <script setup lang="ts">
-    import { computed, onMounted, ref } from "vue";
-    import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, CssVariableInfo } from "shared/models";
+    import { computed, ref, watch } from "vue";
+    import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, CssVariableInfo, StyleSheetVariables, Theme } from "shared/models";
     import { createMediaQueryWrapped, createRule, createProperty, getHostUrl } from "shared/functions";
     import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
     import { fetchAssets, fetchTheme } from "@/functions/api.ts";
-    import Page from "@/components/Page.vue";
+    import Browser from "@/components/Browser.vue";
     import ThemeResult from "@/components/ThemeResult.vue";
     import VariableSettings from "@/components/VariableSettings.vue";
 
-    // ------ PAGE PREVIEWS ------
-
-    const url = useReactiveStorage<string>('tg-page-url', () => '/works');
+    type StringMap = { [key: string]: string }
 
     // ------ ASSET LOADING ------
 
-    const assetStyleSheets = ref<StyleSheetAsset[]>();
-    const assetVariables = ref<CssVariableInfo[]>();
-    const variableValues = useReactiveStorage<string[]>('tg-variables');
+    const stylesheets = ref<StyleSheetAsset[]>();
+    const theme = ref<Theme>();
+    const variableValues = useReactiveStorage<StringMap>('tg-variables');
 
-    onMounted(async () => {
-        await getAssets();
-    })
+    await getAssets();
 
-    async function getAssets() {
+    async function getAssets(): Promise<void> {
         const response = await fetchAssets();
 
         if(!response.ok) {
-            console.error('Request failed:', response.statusText);
-            return;
+            throw new Error(`Couldn't fetch assets from server. Is the server online?`);
         }
 
         const data: StyleSheetBundle = await response.json();
 
-        assetVariables.value = data.variables;
-        assetStyleSheets.value = data.stylesheets;
+        stylesheets.value = data.stylesheets;
+        theme.value = data.theme;
 
         if(!variableValues.value) {
             resetVariables();
         }
     }
 
-    function resetVariables() {
-        variableValues.value = getDefaultVariableValues();
+    function resetVariables(): void {
+        if(theme.value) {
+            variableValues.value = getDefaultVariableValues(theme.value);
+        }
     }
 
-    function getDefaultVariableValues() {
-        return assetVariables.value?.map(v => v.default) ?? null;
+    function getDefaultVariableValues(theme: Theme): StringMap {
+        const results: StringMap = {};
+
+        theme.colors?.forEach(group => {
+            group.items.forEach(p => {
+                results[p.key] = p.value;
+            });
+        });
+
+        theme.sizes.forEach(p => {
+            results[p.key] = String(p.value);
+        });
+
+        theme.radius.forEach(p => {
+            results[p.key] = String(p.value);
+        });
+
+        return results;
     }
 
     // ------ GENERATED STYLESHEETS ------
 
     const generatedStyleSheets = ref<StyleSheetAsset[]>();
 
-    async function generateTheme() {
+    async function generateTheme(): Promise<void> {
         const values = getVariableValues();
 
         if(!values) {
@@ -71,21 +84,12 @@
         generatedStyleSheets.value = data.stylesheets;
     }
 
-    function getVariableValues() {
-        if(!assetVariables.value || !variableValues.value) {
+    function getVariableValues(): [string, string][] | undefined {
+        if(!variableValues.value) {
             return;
         }
 
-        const results: [string, string][] = [];
-
-        for(let i = 0; i < assetVariables.value.length; i++) {
-            const key = assetVariables.value[i]!.key;
-            const value = variableValues.value[i] ?? assetVariables.value[i]!.default;
-
-            results.push([key, value])
-        }
-
-        return results;
+        return Object.entries(variableValues.value).map(v => v);
     }
 
     function clearGenerated() {
@@ -95,15 +99,21 @@
     // ------ PREVIEWED STYLESHEETS ------
 
     const previewStyleSheets = computed<string[]>(() => {
-        if(!assetStyleSheets.value || !assetVariables.value || !variableValues.value) {
+        if(!stylesheets.value || !theme.value || !variableValues.value) {
             return [];
         }
 
-        return getPreviewStyleSheets(assetStyleSheets.value, assetVariables.value, variableValues.value);
+        return getPreviewStyleSheets(stylesheets.value, theme.value, variableValues.value);
     });
 
-    function getPreviewStyleSheets(stylesheets: StyleSheetAsset[], variables: CssVariableInfo[], variableValues: string[]): string[] {
-        const properties = variables.map((v, i) => getVariableProperty(v, variableValues[i]));
+    function getPreviewStyleSheets(stylesheets: StyleSheetAsset[], theme: Theme, variableValues: StringMap): string[] {
+        const properties = Object.entries(variableValues).map(v => {
+            const key = v[0];
+            const value = `${v[1]}${getUnit(theme, key)}`
+
+            return createProperty(key, value);
+        });
+
         const variableStyleSheet = createRule('*', properties);
 
         return [
@@ -112,18 +122,31 @@
         ];
     }
 
-    function getVariableProperty(variableInfo: CssVariableInfo, definedValue?: string): string {
-        const unit = variableInfo.unit ?? '';
-        const value = definedValue ?? variableInfo.default;
+    function getUnit(theme: Theme, key: string): string {
+        const size = theme.sizes.find(x => x.key === key);
 
-        return createProperty(variableInfo.key, `${value}${unit}`)
+        if(size) {
+            return size.unit;
+        }
+
+        const radius = theme.radius.find(x => x.key === key);
+
+        if(radius) {
+            return radius.unit;
+        }
+
+        return '';
     }
+
+    watch(variableValues, (v) => {
+        console.log(v)
+    }, {deep: true})
 </script>
 
 <template>
     <div class="absolute inset-0 flex">
         <!-- left panel -->
-        <div class="w-72 overflow-auto">
+        <div class="w-72 min-w-72 overflow-auto">
             <div class="sidebar border-base-300 border-e p-3">
                 <div class="grid gap-2">
                     <button class="btn btn-sm btn-success btn-outline" @click="generateTheme">Generate theme</button>
@@ -132,8 +155,8 @@
                 </div>
 
                 <variable-settings
-                    v-if="assetVariables && variableValues"
-                    :variables="assetVariables"
+                    v-if="theme && variableValues"
+                    :theme="theme"
                     v-model="variableValues"
                 />
 
@@ -146,8 +169,7 @@
 
         <!-- right panel -->
         <div class="grow overflow-auto">
-            <page
-                v-model="url"
+            <browser
                 :stylesheets="previewStyleSheets"
                 :base-url="getHostUrl()"
             />

@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Dirent } from "node:fs";
 import postcss, { Processor } from "postcss";
-import { getPlugins } from "./css-plugins";
+import { getPlugins } from "@/functions/css-plugins";
 import { writeServerAsset } from "@/services/assets.service";
 import { CssAssetType } from "@/models/CssAssetType";
 
