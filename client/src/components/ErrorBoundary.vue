@@ -5,7 +5,7 @@
 
     defineSlots<{
         default(): any
-        error(props: {error: Error, clearError: () => void}): any
+        error(props: { error: Error, clearError: () => void }): any
     }>();
 
     onErrorCaptured(err => {

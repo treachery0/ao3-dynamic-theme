@@ -1,11 +1,8 @@
 export * from "./models/StyleSheetBundle";
 export * from "./models/StyleSheetAssetInfo";
-export * from "./models/CssVariableInfo";
-export * from "./models/CssVariableType";
 export * from "./models/HtmlAsset";
 export * from "./models/StyleSheetAsset";
 export * from "./models/StyleSheetImportance";
-export * from "./models/StyleSheetVariables";
 export * from "./models/ThemeInfo";
 
 export type Theme = {
@@ -22,7 +19,6 @@ export type FontVar = {
     value: string
     name: string
 }
-
 
 export type ThemeOptions = {
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed, ref, watch } from "vue";
-    import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, CssVariableInfo, StyleSheetVariables, Theme } from "shared/models";
+    import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, Theme } from "shared/models";
     import { createMediaQueryWrapped, createRule, createProperty, getHostUrl } from "shared/functions";
     import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
     import { fetchAssets, fetchTheme } from "@/functions/api.ts";
@@ -146,7 +146,7 @@
 <template>
     <div class="absolute inset-0 flex">
         <!-- left panel -->
-        <div class="w-72 min-w-72 overflow-auto">
+        <div class="min-w-64 w-64 overflow-y-auto">
             <div class="sidebar border-base-300 border-e p-3">
                 <div class="grid gap-2">
                     <button class="btn btn-sm btn-success btn-outline" @click="generateTheme">Generate theme</button>
