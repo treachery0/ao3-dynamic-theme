@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { computed, ref, watch } from "vue";
+    import { computed, ref } from "vue";
     import { StyleSheetBundle, ThemeInfo, StyleSheetAsset, Theme } from "shared/models";
     import { createMediaQueryWrapped, createRule, createProperty, getHostUrl } from "shared/functions";
-    import { useReactiveStorage } from "@/composables/UseReactiveStorage.ts";
-    import { fetchAssets, fetchTheme } from "@/functions/api.ts";
+    import { useReactiveStorage } from "@/composables/UseReactiveStorage";
+    import { fetchAssets, fetchTheme } from "@/functions/api";
     import Browser from "@/components/Browser.vue";
     import ThemeResult from "@/components/ThemeResult.vue";
     import VariableSettings from "@/components/VariableSettings.vue";
@@ -137,10 +137,6 @@
 
         return '';
     }
-
-    watch(variableValues, (v) => {
-        console.log(v)
-    }, {deep: true})
 </script>
 
 <template>

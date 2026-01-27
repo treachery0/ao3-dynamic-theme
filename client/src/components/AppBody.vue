@@ -12,17 +12,17 @@
 <template>
     <transition mode="out-in" name="fade" appear>
         <div class="h-full" :key="routeKey">
-            <suspense timeout="0">
-                <error-boundary>
+            <error-boundary>
+                <suspense timeout="0">
                     <component :is="component"/>
-                    <template #error="{error, clearError}">
-                        <error-panel :error="error" :clear-error="clearError"/>
+                    <template #fallback>
+                        <loading-indicator/>
                     </template>
-                </error-boundary>
-                <template #fallback>
-                    <loading-indicator/>
+                </suspense>
+                <template #error="{error, clearError}">
+                    <error-panel :error="error" :clear-error="clearError"/>
                 </template>
-            </suspense>
+            </error-boundary>
         </div>
     </transition>
 </template>

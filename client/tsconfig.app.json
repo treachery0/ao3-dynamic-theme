@@ -5,6 +5,7 @@
     "strict": true,
     "noUncheckedSideEffectImports": true,
     "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
     "types": [
       "vite/client"
     ],

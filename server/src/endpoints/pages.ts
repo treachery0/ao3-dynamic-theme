@@ -32,6 +32,8 @@ export class Pages extends OpenAPIRoute {
             url: url.href,
         };
 
+        //throw new Error()
+
         return c.json(data);
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { StyleSheetAsset, StyleSheetImportance } from "shared/models";
-    import { downloadFile } from "@/functions/downloads.ts";
+    import { downloadFile } from "@/functions/downloads";
     import { Download, Copy } from "lucide-vue-next";
 
     const {stylesheet} = defineProps<{
