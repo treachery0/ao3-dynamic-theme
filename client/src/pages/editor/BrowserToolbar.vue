@@ -1,17 +1,23 @@
 <script setup lang="ts">
     import { computed, useTemplateRef } from "vue";
-    import { House, ArrowLeft, ArrowRight, RotateCw, Menu, FileCode } from "@lucide/vue";
+    import { House, ArrowLeft, ArrowRight, RotateCw, Menu, FileCode, ZoomIn } from "@lucide/vue";
     import { getHostUrl } from "common/functions";
-    import { IHistory } from "@/composables/useHistory";
     import { useSkinStore } from "@/stores/useSkinStore";
-    import ToolbarMenu from "@/pages/editor/ToolbarMenu.vue";
-    import ThemeResult from "@/pages/editor/ThemeResult.vue";
+    import { IHistory } from "@/composables/useHistory";
+    import { BrowserOptions } from "@/models/BrowserOptions";
+    import DropdownMenu from "@/components/ui/DropdownMenu.vue";
+    import SkinResult from "@/pages/editor/SkinResult.vue";
+    import InputPercentage from "@/pages/editor/InputPercentage.vue";
 
     const {skins, removeSkin} = useSkinStore();
 
     const {history} = defineProps<{
         history: IHistory
     }>();
+
+    const options = defineModel<BrowserOptions>({
+        required: true
+    });
 
     const inputElement = useTemplateRef('url-input');
 
@@ -40,42 +46,44 @@
             inputElement.value.value = displayUrl.value;
         }
     }
+
+    function screenshotPage() {
+        alert('Not implemented')
+    }
 </script>
 
 <template>
     <div class="flex gap-4 items-center justify-between px-2 relative">
+        <!-- left side -->
         <div class="flex items-center gap-2">
-            <button
+            <arrow-left
                 class="btn btn-ghost p-1"
                 :class="{'btn-disabled': !history.canBack.value}"
                 title="Go back one page"
                 @click="history.back()"
-            >
-                <arrow-left class="size-5"/>
-            </button>
+            />
 
-            <button
+            <arrow-right
                 class="btn btn-ghost p-1"
                 :class="{'btn-disabled': !history.canForward.value}"
                 title="Go forward one page"
                 @click="history.forward()"
-            >
-                <arrow-right class="size-5"/>
-            </button>
+            />
 
-            <button
+            <rotate-cw
                 class="btn btn-ghost p-1"
                 title="Reload current page"
                 @click="history.reload()"
-            >
-                <rotate-cw class="size-5"/>
-            </button>
+            />
         </div>
 
+        <!-- url bar -->
         <div class="flex items-center gap-2">
-            <button class="btn btn-ghost p-1" @click="history.push('/')" title="Go to home page">
-                <house class="size-5"/>
-            </button>
+            <house
+                class="btn btn-ghost p-1"
+                title="Go to home page"
+                @click="history.push('/')"
+            />
 
             <input
                 type="text"
@@ -87,26 +95,48 @@
             />
         </div>
 
+        <!-- right side -->
         <div class="flex items-center gap-2">
-            <toolbar-menu :icon="FileCode">
+            <dropdown-menu>
+                <template #icon>
+                    <FileCode class="size-5"/>
+                </template>
                 <div class="grid text-sm overflow-y-auto w-80 max-h-120 p-1">
                     <template v-if="skins.length">
-                        <theme-result
+                        <skin-result
                             v-for="(skin, i) in skins"
-                            :theme="skin"
+                            :skin="skin"
                             @clear="removeSkin(i)"
                         />
                     </template>
                     <div v-else class="text-nowrap px-2 py-1">
-                        Generated themes will show up here.
+                        Generated skins will show up here.
                     </div>
                 </div>
-            </toolbar-menu>
-            <toolbar-menu :icon="Menu">
-                <div class="grid text-sm w-80">
-                    <div class="px-3 py-1.5">To be implemented</div>
+            </dropdown-menu>
+
+            <dropdown-menu>
+                <template #icon>
+                    <Menu class="size-5"/>
+                </template>
+                <div class="grid text-sm w-80 px-4 py-1 gap-2">
+                    <div class="flex items-center gap-2">
+                        <zoom-in/>
+                        <span>Zoom</span>
+                        <input-percentage
+                            class="ms-auto"
+                            v-model="options.zoom"
+                            :min="0.3"
+                            :max="3"
+                            :step="0.1"
+                        />
+                    </div>
+
+                    <button class="btn justify-start" @click="screenshotPage">
+                        Save page as image...
+                    </button>
                 </div>
-            </toolbar-menu>
+            </dropdown-menu>
         </div>
     </div>
 </template>

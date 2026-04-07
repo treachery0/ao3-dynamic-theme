@@ -17,7 +17,7 @@ export async function fetchAssets(): Promise<Response> {
     return fetchAPI('/api/assets');
 }
 
-export async function fetchTheme(values: [string, string][], signal?: AbortSignal): Promise<Response> {
+export async function fetchSkin(values: [string, string][], signal?: AbortSignal): Promise<Response> {
     const body = JSON.stringify(values);
 
     return fetchAPI('/api/generate', {

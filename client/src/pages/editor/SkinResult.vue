@@ -4,10 +4,10 @@
     import { FolderDown, Check, Trash2, FileText } from "@lucide/vue";
     import { downloadFile, getFileSizeWithUnit } from "@/functions/file-utils";
     import { GeneratedSkin } from "@/models/GeneratedSkin";
-    import ThemeResultDetails from "@/pages/editor/ThemeResultDetails.vue";
+    import SkinResultDetails from "@/pages/editor/SkinResultDetails.vue";
 
-    const {theme} = defineProps<{
-        theme: GeneratedSkin
+    const {skin} = defineProps<{
+        skin: GeneratedSkin
     }>();
 
     const emits = defineEmits<{
@@ -17,7 +17,7 @@
     const detailsOpen = ref<boolean>(false);
 
     const totalSize = computed<string>(() => {
-        const totalBytes = theme.chunks.reduce((sum, sheet) => sum + sheet.content.length, 0);
+        const totalBytes = skin.chunks.reduce((sum, sheet) => sum + sheet.content.length, 0);
         const {size, unit} = getFileSizeWithUnit(totalBytes);
 
         return `${size.toPrecision(4)} ${unit}`;
@@ -26,13 +26,13 @@
     async function downloadTheme(): Promise<void> {
         const zip = new JSZip();
 
-        for(const stylesheet of theme.chunks) {
+        for(const stylesheet of skin.chunks) {
             zip.file(stylesheet.filename, stylesheet.content);
         }
 
         const blob = await zip.generateAsync({type: 'blob'});
 
-        downloadFile(blob, `${theme.name}.zip`);
+        downloadFile(blob, `${skin.name}.zip`);
     }
 
     function deleteTheme(): void {
@@ -52,8 +52,8 @@
     <div class="min-w-0 flex cursor-pointer items-center gap-2 p-1 hover:bg-base-200 rounded-lg transition-colors" @click="openDetails">
         <file-text class="text-base-content/60 shrink-0"/>
 
-        <div class="shrink min-w-0 truncate font-medium text-xs" :title="theme.name">
-            {{ theme.name }}
+        <div class="shrink min-w-0 truncate font-medium text-xs" :title="skin.name">
+            {{ skin.name }}
         </div>
 
         <div class="ms-auto badge badge-xs badge-success gap-0 shrink-0">
@@ -72,8 +72,8 @@
     </div>
 
     <teleport v-if="detailsOpen" to="body">
-        <theme-result-details
-            :theme="theme"
+        <skin-result-details
+            :skin="skin"
             :close="closeDetails"
         />
     </teleport>

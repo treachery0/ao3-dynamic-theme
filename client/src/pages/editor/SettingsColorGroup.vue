@@ -1,13 +1,12 @@
 <script setup lang="ts">
     import { ColorGroup, ColorVariable } from "common/models";
+    import { useSchemaStore } from "@/stores/useSchemaStore";
 
     const {group} = defineProps<{
         group: ColorGroup
     }>();
 
-    const variableValues = defineModel<{ [key: string]: string }>({
-        required: true
-    });
+    const {variables} = useSchemaStore();
 
     function groupStyle(group: ColorGroup) {
         return {
@@ -26,8 +25,8 @@
         const fgKey = group.items.find(c => c.foreground)?.key;
 
         return {
-            backgroundColor: bgKey ? variableValues.value[bgKey] : undefined,
-            color: fgKey ? variableValues.value[fgKey] : undefined,
+            backgroundColor: bgKey ? variables.value[bgKey] : undefined,
+            color: fgKey ? variables.value[fgKey] : undefined,
             fontSize: color.foreground ? '18px' : '12px'
         }
     }
@@ -53,10 +52,12 @@
                 <input
                     type="color"
                     class="invisible absolute left-full top-0"
-                    v-model="variableValues[color.key]"
+                    v-model="variables[color.key]"
                 />
             </label>
         </div>
-        <span class="text-xs ms-0.5 text-neutral-content/80">{{ group.name }}</span>
+        <div class="text-xs ms-0.5 text-neutral-content/80">
+            {{ group.name }}
+        </div>
     </div>
 </template>

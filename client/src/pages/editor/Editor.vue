@@ -1,20 +1,20 @@
 <script setup lang="ts">
-    import { watch } from "vue";
+    import { ref, watch } from "vue";
     import { fetchAssets } from "@/functions/api";
     import { useStorage } from "@/composables/useStorage";
-    import { useStorageRef } from "@/composables/useStorageRef";
     import { IHistory, useHistory } from "@/composables/useHistory";
     import { initializeSkinStore } from "@/stores/useSkinStore";
     import { initializeSchemaStore } from "@/stores/useSchemaStore";
-    import { GeneratedSkin } from "@/models/GeneratedSkin";
     import { SkinChunk } from "common/models";
-    import ThemeSettings from "@/pages/editor/ThemeSettings.vue";
+    import SettingsVariables from "@/pages/editor/SettingsVariables.vue";
     import BrowserToolbar from "@/pages/editor/BrowserToolbar.vue";
     import Browser from "@/pages/editor/Browser.vue";
+    import { BrowserOptions } from "@/models/BrowserOptions";
+    import { useStorageRef } from "@/composables/useStorageRef";
 
-    const {} = initializeSkinStore(useStorageRef<GeneratedSkin[]>('tg-editor-skins', () => []));
-    const {variables, stylesheets} = initializeSchemaStore(await getStylesheets());
-    const history = createHistory('tg-editor-url');
+    const {} = initializeSkinStore();
+    const {stylesheets} = initializeSchemaStore(await getStylesheets());
+    const history = createHistory('sg-editor-url');
 
     async function getStylesheets(): Promise<SkinChunk[]> {
         const response = await fetchAssets();
@@ -36,17 +36,22 @@
 
         return history;
     }
+
+    const browserOptions = useStorageRef<BrowserOptions>('sg-editor-browser-options', () => ({
+        zoom: 1
+    }));
 </script>
 
 <template>
     <div class="absolute inset-0 flex">
         <div class="overflow-y-auto min-w-64 w-64 p-3 my-2">
-            <theme-settings v-model="variables"/>
+            <settings-variables/>
         </div>
 
         <div class="overflow-y-auto grow">
             <div class="relative h-full flex flex-col p-2 gap-2">
                 <browser-toolbar
+                    v-model="browserOptions"
                     :history="history"
                 />
 
@@ -55,6 +60,7 @@
                         :history="history"
                         :stylesheets="stylesheets"
                         :cache-size="16"
+                        :style="browserOptions"
                     />
                 </div>
             </div>

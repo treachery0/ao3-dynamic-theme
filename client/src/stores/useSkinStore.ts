@@ -1,5 +1,6 @@
 import { Ref } from "vue";
 import { useSingleton } from "@/composables/useSingleton";
+import { useStorageRef } from "@/composables/useStorageRef";
 import { SkinChunk, TaskStatus } from "common/models";
 import { GeneratedSkin } from "@/models/GeneratedSkin";
 
@@ -17,7 +18,9 @@ interface ISkinStore {
     clearSkins: () => void
 }
 
-function useSkinStore(skins: Ref<GeneratedSkin[]>): ISkinStore {
+function useSkinStore(): ISkinStore {
+    const skins = useStorageRef<GeneratedSkin[]>('sg-editor-skins', () => []);
+
     function createSkin(name: string, chunks: SkinChunk[]): void {
         const skin: GeneratedSkin = {
             name: name,

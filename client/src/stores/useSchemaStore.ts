@@ -23,7 +23,7 @@ export interface ISchemaStore {
 function useSchemaStore(chunks: SkinChunk[]) {
     const schema = computed<SkinSchema>(getDefaultSchema);
     const {getDefaultVariables, getUnit} = useSkinSchema(schema);
-    const variables = useStorageRef('tg-editor-variables', getDefaultVariables);
+    const variables = useStorageRef('sg-editor-variables', getDefaultVariables);
     const variableStylesheet = useVariableStylesheet(variables, getUnit);
 
     const chunkStylesheets = chunks.map(c => createMediaQueryWrapped(c.media, c.content));

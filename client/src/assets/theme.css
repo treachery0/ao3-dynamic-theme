@@ -2,10 +2,10 @@
 
 @plugin "daisyui/theme" {
     name: "coffee";
-    --color-base-100: oklch(24% 0.019 330);
-    --color-base-200: oklch(21% 0.017 330);
-    --color-base-300: oklch(16% 0.015 330);
-    --color-base-content: oklch(85% 0.080 79);
+    --color-base-100: oklch(24% 0.017 330);
+    --color-base-200: oklch(21% 0.015 330);
+    --color-base-300: oklch(16% 0.013 330);
+    --color-base-content: oklch(85% 0.080 80);
     --color-primary: oklch(72% 0.123 63);
     --color-primary-content: oklch(15% 0.025 63);
     --color-secondary: oklch(34% 0.029 200);
