@@ -16,6 +16,13 @@ export default defineConfig({
         vueDevTools(),
         tailwindcss()
     ],
+    build: {
+        rolldownOptions: {
+            output: {
+                sanitizeFileName: name => name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9_.-]/g, '')
+            }
+        }
+    },
     define: {
         __APP_VERSION__: JSON.stringify('2.0.2'),
         __BUILD_DATE__: new Date(),
