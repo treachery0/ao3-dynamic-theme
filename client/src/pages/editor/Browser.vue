@@ -1,11 +1,11 @@
 <script setup lang="ts">
-    import { fetchPages } from "@/functions/api";
-    import { ICache, useCache } from "@/composables/useCache";
-    import { IHistory } from "@/composables/useHistory";
-    import LoadingIndicator from "@/components/ui/LoadingIndicator.vue";
-    import ErrorPanel from "@/components/ui/ErrorPanel.vue";
-    import ErrorBoundary from "@/components/ui/ErrorBoundary.vue";
+    import {fetchPages} from "@/functions/api";
+    import {ICache, useCache} from "@/composables/useCache";
+    import {IHistory} from "@/composables/useHistory";
+    import {BrowserOptions} from "@/models/BrowserOptions";
     import BrowserBody from "@/pages/editor/BrowserBody.vue";
+    import BrowserToolbar from "@/pages/editor/BrowserToolbar.vue";
+    import AsyncBoundary from "@/components/ui/AsyncBoundary.vue";
 
     const {history, stylesheets = [], cacheSize} = defineProps<{
         history: IHistory
@@ -13,20 +13,24 @@
         cacheSize?: number
     }>();
 
+    const options = defineModel<BrowserOptions>({
+        required: true
+    });
+
     const cache: ICache<string, string> | undefined = createCache();
 
-    async function getHtml(signal: AbortSignal): Promise<string> {
+    async function getHtml(): Promise<string> {
         const url: string = history.location.value;
 
         if(!cache) {
-            return fetchHtml(url, signal);
+            return fetchHtml(url);
         }
 
-        return cache.getAsync(url, () => fetchHtml(url, signal));
+        return cache.getAsync(url, () => fetchHtml(url));
     }
 
-    async function fetchHtml(url: string, signal: AbortSignal): Promise<string> {
-        const response = await fetchPages(url, signal);
+    async function fetchHtml(url: string): Promise<string> {
+        const response = await fetchPages(url);
 
         if(!response.ok) {
             throw new Error(`Failed to fetch page (${response.status} ${response.statusText})`);
@@ -55,33 +59,29 @@
             return;
         }
 
-        const path = url.pathname + url.search + url.hash;
+        const path = url.pathname + url.search;
 
         history.push(path);
     }
 </script>
 
 <template>
-    <transition mode="out-in" name="fade">
-        <div :key="history.location.value">
-            <error-boundary>
-                <suspense timeout="0">
-                    <browser-body
-                        :getHtml="getHtml"
-                        :stylesheets="stylesheets"
-                        @navigate="onNavigate"
-                    />
-                    <template #fallback>
-                        <div class="my-8 flex flex-col gap-4 items-center">
-                            <span class="font-medium text-lg">Loading page...</span>
-                            <loading-indicator/>
-                        </div>
-                    </template>
-                </suspense>
-                <template #error="{error, clearError}">
-                    <error-panel :error="error" :clear-error="clearError"/>
-                </template>
-            </error-boundary>
+    <div class="@container h-full flex flex-col bg-base-100 border-2 border-base-content/30">
+        <browser-toolbar
+            v-model="options"
+            :history="history"
+            class="py-1 border-base-content/30 border-b-2"
+        />
+
+        <div class="grow overflow-auto">
+            <async-boundary :transitionKey="history.location.value">
+                <browser-body
+                    :get-html="getHtml"
+                    :stylesheets="stylesheets"
+                    @navigate="onNavigate"
+                    :style="options"
+                />
+            </async-boundary>
         </div>
-    </transition>
+    </div>
 </template>

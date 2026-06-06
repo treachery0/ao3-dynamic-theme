@@ -42,10 +42,10 @@
 
 <template>
     <div class="grid" :style="groupStyle(group)">
-        <div class="grid gap-4" :style="groupInnerStyle(group)">
+        <div class="grid gap-2" :style="groupInnerStyle(group)">
             <label
                 v-for="color in group.items"
-                class="h-10 grow rounded-lg border border-neutral-content/30 font-bold flex justify-center items-center relative overflow-hidden"
+                class="h-10 grow font-bold flex justify-center items-center relative overflow-hidden border border-base-content"
                 :style="getColorCellStyle(group, color)"
             >
                 <span>{{ colorText(color) }}</span>

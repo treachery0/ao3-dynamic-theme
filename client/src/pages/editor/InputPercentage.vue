@@ -23,11 +23,11 @@
 </script>
 
 <template>
-    <span class="flex items-center gap-2">
-        <minus @click="stepValue(-1)" class="btn btn-square btn-sm"/>
-        <span @wheel="onWheel" class="px-1 py-0.5 min-w-12 text-center">
+    <span class="flex items-center">
+        <minus @click="stepValue(-1)" class="btn btn-square btn-sm border-2 border-base-content/30"/>
+        <span @wheel="onWheel" class="px-3 py-0.5 w-16 text-center font-mono">
             {{Math.round(model * 100)}}%
         </span>
-        <plus @click="stepValue(1)" class="btn btn-square btn-sm"/>
+        <plus @click="stepValue(1)" class="btn btn-square btn-sm border-2 border-base-content/30"/>
     </span>
 </template>

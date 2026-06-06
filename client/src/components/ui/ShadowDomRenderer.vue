@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref, useTemplateRef, watch, onMounted } from "vue";
+    import {onMounted, ref, useTemplateRef, watch} from "vue";
 
     const {rootNode, styleSheets} = defineProps<{
         rootNode: Node
@@ -7,7 +7,7 @@
     }>();
 
     const emits = defineEmits<{
-        (e: 'navigate', url: string): void
+        (e: 'initialize', shadowRoot: ShadowRoot): void
     }>();
 
     const containerEl = useTemplateRef('container');
@@ -23,8 +23,8 @@
 
         shadowRoot.value = containerEl.value.attachShadow({mode: 'open'});
         shadowRoot.value.replaceChildren(rootNode);
-        shadowRoot.value.addEventListener('click', onClickEvent);
 
+        emits('initialize', shadowRoot.value);
         onStyleChange(styleSheets);
     }
 
@@ -34,22 +34,6 @@
         }
 
         shadowRoot.value.adoptedStyleSheets = stylesheets;
-    }
-
-    function onClickEvent(e: Event): void {
-        e.preventDefault();
-
-        if(!(e.target instanceof Element)) {
-            return;
-        }
-
-        const link = e.target.closest('a');
-
-        if(!(link instanceof HTMLAnchorElement) || !link.href) {
-            return;
-        }
-
-        emits('navigate', link.href);
     }
 </script>
 

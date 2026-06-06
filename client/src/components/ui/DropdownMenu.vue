@@ -22,7 +22,7 @@
             <slot name="icon"/>
         </div>
 
-        <div v-if="isOpen" class="absolute top-full right-0 border border-base-content/30 rounded bg-base-100">
+        <div v-if="isOpen" class="absolute top-full right-0 border-2 border-base-content/30 bg-base-100">
             <slot/>
         </div>
     </div>

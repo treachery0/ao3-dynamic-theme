@@ -1,20 +1,24 @@
 <script setup lang="ts">
-    import { ref, watch } from "vue";
-    import { fetchAssets } from "@/functions/api";
-    import { useStorage } from "@/composables/useStorage";
-    import { IHistory, useHistory } from "@/composables/useHistory";
-    import { initializeSkinStore } from "@/stores/useSkinStore";
-    import { initializeSchemaStore } from "@/stores/useSchemaStore";
-    import { SkinChunk } from "common/models";
-    import SettingsVariables from "@/pages/editor/SettingsVariables.vue";
-    import BrowserToolbar from "@/pages/editor/BrowserToolbar.vue";
+    import {Component as Comp, computed, Ref, watch} from "vue";
+    import {fetchAssets} from "@/functions/api";
+    import {useStorage} from "@/composables/useStorage";
+    import {useStorageRef} from "@/composables/useStorageRef";
+    import {IHistory, useHistory} from "@/composables/useHistory";
+    import {initializeSkinStore} from "@/stores/useSkinStore";
+    import {initializeSchemaStore} from "@/stores/useSchemaStore";
+    import {SkinChunk} from "common/models";
+    import {BrowserOptions} from "@/models/BrowserOptions";
+    import TabVariables from "@/pages/editor/TabVariables.vue";
     import Browser from "@/pages/editor/Browser.vue";
-    import { BrowserOptions } from "@/models/BrowserOptions";
-    import { useStorageRef } from "@/composables/useStorageRef";
+    import {LucideSquareFunction, FileBox} from "@lucide/vue";
+    import TabResults from "@/pages/editor/TabResults.vue";
 
     const {} = initializeSkinStore();
     const {stylesheets} = initializeSchemaStore(await getStylesheets());
-    const history = createHistory('sg-editor-url');
+
+    const browserHistory = createHistory('sg-url');
+    const browserOptions = createOptions('sg-browser-options');
+    const activeTab = useStorageRef<string | undefined>('sg-active-tab', () => undefined);
 
     async function getStylesheets(): Promise<SkinChunk[]> {
         const response = await fetchAssets();
@@ -37,33 +41,71 @@
         return history;
     }
 
-    const browserOptions = useStorageRef<BrowserOptions>('sg-editor-browser-options', () => ({
-        zoom: 1
-    }));
+    function createOptions(storageKey: string): Ref<BrowserOptions> {
+        return useStorageRef<BrowserOptions>(storageKey, () => ({
+            zoom: 1
+        }));
+    }
+
+    const tabs: Tab[] = [
+        {
+            id: 'vars',
+            label: 'Variables',
+            icon: LucideSquareFunction,
+            component: TabVariables
+        },
+        {
+            id: 'res',
+            label: 'Results',
+            icon: FileBox,
+            component: TabResults
+        }
+    ];
+
+    const activeTabComponent = computed<Comp>(() => {
+        const tab: Tab | undefined = tabs.find(x => x.id === activeTab.value);
+
+        if(!tab) {
+            return tabs[0].component;
+        }
+
+        return tab.component;
+    });
+
+    interface Tab {
+        id: string
+        label: string
+        icon?: Comp
+        component: Comp
+    }
 </script>
 
 <template>
-    <div class="absolute inset-0 flex">
-        <div class="overflow-y-auto min-w-64 w-64 p-3 my-2">
-            <settings-variables/>
+    <div class="absolute inset-0 flex p-2.5 gap-4">
+        <div class="grow flex flex-col gap-2.5">
+            <div class="flex border-2 border-base-content/30">
+                <button
+                    v-for="tab in tabs"
+                    @click="activeTab = tab.id"
+                    class="btn py-4.5 w-32 border-0 bg-base"
+                    :class="{'btn-primary': activeTab === tab.id}"
+                >
+                    <component v-if="tab.icon" :is="tab.icon"/>
+                    <span>{{tab.label}}</span>
+                </button>
+            </div>
+            <div class="overflow-auto">
+                <browser
+                    v-model="browserOptions"
+                    :history="browserHistory"
+                    :stylesheets="stylesheets"
+                    :cache-size="16"
+                />
+            </div>
         </div>
 
-        <div class="overflow-y-auto grow">
-            <div class="relative h-full flex flex-col p-2 gap-2">
-                <browser-toolbar
-                    v-model="browserOptions"
-                    :history="history"
-                />
-
-                <div class="grow overflow-auto rounded-xl border-2 shadow shadow-base-300">
-                    <browser
-                        :history="history"
-                        :stylesheets="stylesheets"
-                        :cache-size="16"
-                        :style="browserOptions"
-                    />
-                </div>
-            </div>
+        <div class="overflow-y-auto min-w-64 w-64 pt-2.5">
+            <component :is="activeTabComponent"/>
         </div>
     </div>
 </template>

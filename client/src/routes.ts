@@ -10,12 +10,8 @@ const routes = [
         component: () => import("@/pages/editor/Editor.vue")
     },
     {
-        path: '/skins',
-        component: () => import("@/pages/skins/Skins.vue")
-    },
-    {
         path: '/:pathName(.*)',
-        component: () => import("@/components/NotFound.vue")
+        component: () => import("@/components/layout/NotFound.vue")
     }
 ];
 

@@ -1,23 +1,43 @@
 <script setup lang="ts">
-    import { ref } from "vue";
-    import { useSimulatedDocument } from "@/composables/useSimulatedDocument";
-    import { useAbortable, IAbortableCallback } from "@/composables/useAbortable";
-    import ShadowDomRenderer from "@/components/ShadowDomRenderer.vue";
+    import {ref} from "vue";
+    import {ISimulatedDocument, useSimulatedDocument} from "@/composables/useSimulatedDocument";
+    import ShadowDomRenderer from "@/components/ui/ShadowDomRenderer.vue";
 
     const {stylesheets, getHtml} = defineProps<{
         stylesheets: CSSStyleSheet[]
-        getHtml: IAbortableCallback<string>
+        getHtml: () => Promise<string>
     }>();
 
     const emits = defineEmits<{
         (e: 'navigate', url: string): void
     }>();
 
-    const html = ref(await useAbortable(getHtml));
-    const {documentRoot, documentStyle} = useSimulatedDocument(html);
+    const {documentRoot, documentStyle} = await createDocument();
 
-    function onNavigate(url: string): void {
-        emits('navigate', url);
+    async function createDocument(): Promise<ISimulatedDocument> {
+        const html = await getHtml();
+        const htmlRef = ref(html);
+
+        const {documentRoot, documentStyle} = useSimulatedDocument(htmlRef);
+        documentRoot.value.addEventListener('click', onClickEvent);
+
+        return {documentRoot, documentStyle};
+    }
+
+    function onClickEvent(e: Event): void {
+        e.preventDefault();
+
+        if(!(e.target instanceof Element)) {
+            return;
+        }
+
+        const link = e.target.closest('a');
+
+        if(!(link instanceof HTMLAnchorElement) || !link.href) {
+            return;
+        }
+
+        emits('navigate', link.href);
     }
 </script>
 
@@ -25,7 +45,6 @@
     <shadow-dom-renderer
         :root-node="documentRoot"
         :style-sheets="[documentStyle, ...stylesheets]"
-        @navigate="onNavigate"
         class="dom-container"
     />
 </template>

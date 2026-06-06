@@ -1,10 +1,9 @@
 <script setup lang="ts">
-    import { computed, ref } from "vue";
+    import { computed } from "vue";
     import JSZip from "jszip";
-    import { FolderDown, Check, Trash2, FileText } from "@lucide/vue";
+    import { FolderDown, Trash2 } from "@lucide/vue";
     import { downloadFile, getFileSizeWithUnit } from "@/functions/file-utils";
     import { GeneratedSkin } from "@/models/GeneratedSkin";
-    import SkinResultDetails from "@/pages/editor/SkinResultDetails.vue";
 
     const {skin} = defineProps<{
         skin: GeneratedSkin
@@ -13,8 +12,6 @@
     const emits = defineEmits<{
         (e: 'clear'): void
     }>();
-
-    const detailsOpen = ref<boolean>(false);
 
     const totalSize = computed<string>(() => {
         const totalBytes = skin.chunks.reduce((sum, sheet) => sum + sheet.content.length, 0);
@@ -38,43 +35,24 @@
     function deleteTheme(): void {
         emits('clear');
     }
-
-    function openDetails(): void {
-        detailsOpen.value = true;
-    }
-
-    function closeDetails(): void {
-        detailsOpen.value = false;
-    }
 </script>
 
 <template>
-    <div class="min-w-0 flex cursor-pointer items-center gap-2 p-1 hover:bg-base-200 rounded-lg transition-colors" @click="openDetails">
-        <file-text class="text-base-content/60 shrink-0"/>
-
-        <div class="shrink min-w-0 truncate font-medium text-xs" :title="skin.name">
+    <div class="p-1.5 border-2 border-base-content/30 bg-base-100">
+        <div class="shrink min-w-0 truncate font-medium text-xs mb-1" :title="skin.name">
             {{ skin.name }}
         </div>
 
-        <div class="ms-auto badge badge-xs badge-success gap-0 shrink-0">
-            <check class="size-3.5"/>
-            <span class="text-nowrap">{{ totalSize }}</span>
-        </div>
-
-        <div class="flex items-center shrink-0">
-            <button class="btn btn-ghost btn-primary px-1 py-0.5 h-auto rounded-sm" @click.stop="downloadTheme">
+        <div class="flex items-center gap-1.5">
+            <div class="text-xs me-auto">
+                {{ totalSize }}
+            </div>
+            <button class="btn btn-success py-0.5 h-auto" @click.stop="downloadTheme">
                 <folder-down/>
             </button>
-            <button class="btn btn-ghost btn-error px-1 py-0.5 h-auto rounded-sm" @click.stop="deleteTheme">
+            <button class="btn btn-error py-0.5 h-auto" @click.stop="deleteTheme">
                 <trash2/>
             </button>
         </div>
     </div>
-
-    <teleport v-if="detailsOpen" to="body">
-        <skin-result-details
-            :skin="skin"
-            :close="closeDetails"
-        />
-    </teleport>
 </template>

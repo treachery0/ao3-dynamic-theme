@@ -2,7 +2,7 @@
 @import "./theme.css";
 
 html, body, #app {
-    @apply h-full relative;
+    @apply h-full relative bg-base-200;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -13,8 +13,24 @@ html, body, #app {
     @apply opacity-0;
 }
 
+a:focus-visible {
+    @apply outline-current outline-1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-wide;
+}
+
 @layer components {
     .lucide {
         @apply size-4 inline-block;
+    }
+
+    .sidebar-divider {
+        @apply flex items-center gap-2 mb-6 text-sm;
+
+        &::after {
+            @apply content-[""] border-b grow;
+        }
     }
 }
