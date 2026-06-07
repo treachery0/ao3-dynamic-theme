@@ -1,11 +1,11 @@
 import { ref, Ref, watch } from "vue";
-import { useStorage } from "@/composables/useStorage";
+import { useStorageItem } from "@/composables/useStorageItem";
 
 export function useStorageRef<T>(key: string): Ref<T | null>;
 export function useStorageRef<T>(key: string, initializer: () => T): Ref<T>;
 
 export function useStorageRef<T>(key: string, initializer?: () => T): Ref<T | null> {
-    const storage = useStorage<T>(localStorage, key);
+    const storage = useStorageItem<T>(localStorage, key);
     const result = ref<T | null>(getInitialValue()) as Ref<T | null>;
 
     watch(result, value => {

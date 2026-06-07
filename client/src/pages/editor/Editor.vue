@@ -1,53 +1,47 @@
 <script setup lang="ts">
-    import {Component as Comp, computed, Ref, watch} from "vue";
-    import {fetchAssets} from "@/functions/api";
-    import {useStorage} from "@/composables/useStorage";
+    import {computed} from "vue";
+    import {LucideSquareFunction, FileBox} from "@lucide/vue";
+    import {fetchAssets, fetchPages} from "@/functions/api";
+    import {createMediaQueryWrapped} from "common/functions";
     import {useStorageRef} from "@/composables/useStorageRef";
-    import {IHistory, useHistory} from "@/composables/useHistory";
-    import {initializeSkinStore} from "@/stores/useSkinStore";
+    import {useVariableStylesheet} from "@/composables/useVariableStylesheet";
     import {initializeSchemaStore} from "@/stores/useSchemaStore";
     import {SkinChunk} from "common/models";
-    import {BrowserOptions} from "@/models/BrowserOptions";
+    import {EditorTab} from "@/models/EditorTab";
     import TabVariables from "@/pages/editor/TabVariables.vue";
     import Browser from "@/pages/editor/Browser.vue";
-    import {LucideSquareFunction, FileBox} from "@lucide/vue";
     import TabResults from "@/pages/editor/TabResults.vue";
+    import SidebarWrapper from "@/components/layout/SidebarWrapper.vue";
 
-    const {} = initializeSkinStore();
-    const {stylesheets} = initializeSchemaStore(await getStylesheets());
+    const {schema, variables} = initializeSchemaStore();
 
-    const browserHistory = createHistory('sg-url');
-    const browserOptions = createOptions('sg-browser-options');
-    const activeTab = useStorageRef<string | undefined>('sg-active-tab', () => undefined);
+    const templateStyles = await getStylesheets();
+    const variableStyles = useVariableStylesheet(schema, variables);
+    const stylesheets = computed<CSSStyleSheet[]>(() => [variableStyles.value, ...templateStyles]);
 
-    async function getStylesheets(): Promise<SkinChunk[]> {
+    async function getStylesheets(): Promise<CSSStyleSheet[]> {
         const response = await fetchAssets();
 
         if(!response.ok) {
             throw new Error(`Couldn't fetch assets from server. Is the server online?`);
         }
 
-        return await response.json();
+        const chunks: SkinChunk[] = await response.json();
+
+        return chunks.map(c => createMediaQueryWrapped(c.media, c.content));
     }
 
-    function createHistory(storageKey: string): IHistory {
-        const storage = useStorage<string>(localStorage, storageKey);
-        const history = useHistory(storage.getItem() ?? '/');
+    async function getHtml(url: string): Promise<string> {
+        const response = await fetchPages(url);
 
-        watch(history.location, value => {
-            storage.setItem(value);
-        });
+        if(!response.ok) {
+            throw new Error(`Failed to fetch page (${response.status} ${response.statusText})`);
+        }
 
-        return history;
+        return response.text();
     }
 
-    function createOptions(storageKey: string): Ref<BrowserOptions> {
-        return useStorageRef<BrowserOptions>(storageKey, () => ({
-            zoom: 1
-        }));
-    }
-
-    const tabs: Tab[] = [
+    const tabs: EditorTab[] = [
         {
             id: 'vars',
             label: 'Variables',
@@ -62,8 +56,10 @@
         }
     ];
 
-    const activeTabComponent = computed<Comp>(() => {
-        const tab: Tab | undefined = tabs.find(x => x.id === activeTab.value);
+    const activeTabId = useStorageRef<string>('sb-active-tab', () => tabs[0].id);
+
+    const activeTabComponent = computed(() => {
+        const tab: EditorTab | undefined = tabs.find(x => x.id === activeTabId.value);
 
         if(!tab) {
             return tabs[0].component;
@@ -71,41 +67,35 @@
 
         return tab.component;
     });
-
-    interface Tab {
-        id: string
-        label: string
-        icon?: Comp
-        component: Comp
-    }
 </script>
 
 <template>
-    <div class="absolute inset-0 flex p-2.5 gap-4">
-        <div class="grow flex flex-col gap-2.5">
-            <div class="flex border-2 border-base-content/30">
-                <button
-                    v-for="tab in tabs"
-                    @click="activeTab = tab.id"
-                    class="btn py-4.5 w-32 border-0 bg-base"
-                    :class="{'btn-primary': activeTab === tab.id}"
-                >
-                    <component v-if="tab.icon" :is="tab.icon"/>
-                    <span>{{tab.label}}</span>
-                </button>
-            </div>
-            <div class="overflow-auto">
-                <browser
-                    v-model="browserOptions"
-                    :history="browserHistory"
-                    :stylesheets="stylesheets"
-                    :cache-size="16"
-                />
-            </div>
+    <div class="absolute inset-0 flex flex-col m-2.5 gap-2.5 overflow-hidden">
+        <!-- editor toolbar -->
+        <div class="flex border-2 border-base-content/30">
+            <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                :class="[tab.classes, {'btn-secondary': activeTabId === tab.id}]"
+                class="btn py-4.5 w-32 border-0 bg-base"
+                @click="activeTabId = tab.id"
+            >
+                <component v-if="tab.icon" :is="tab.icon"/>
+                <span>{{tab.label}}</span>
+            </button>
         </div>
 
-        <div class="overflow-y-auto min-w-64 w-64 pt-2.5">
-            <component :is="activeTabComponent"/>
+        <!-- editor body -->
+        <div class="grow flex gap-2.5 min-h-0 relative flex-col md:flex-row">
+            <browser
+                :get-html="getHtml"
+                :stylesheets="stylesheets"
+                class="grow border-2 border-base-content/30"
+            />
+
+            <sidebar-wrapper>
+                <component :is="activeTabComponent"/>
+            </sidebar-wrapper>
         </div>
     </div>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
     import {computed, useTemplateRef} from "vue";
-    import {House} from "@lucide/vue";
     import {getHostUrl} from "common/functions";
     import {IHistory} from "@/composables/useHistory";
 
@@ -38,16 +37,10 @@
 </script>
 
 <template>
-    <div class="flex items-center justify-center gap-1.5 grow">
-        <house
-            class="btn btn-ghost p-1.25"
-            title="Go to home page"
-            @click="history.push('/')"
-        />
-
+    <div class="flex items-center justify-center gap-1.5">
         <input
             type="text"
-            class="input input-sm bg-base-200 outline-0"
+            class="input input-sm bg-base-200 outline-0 border min-w-40 grow @lg:grow-0 py-3"
             ref="url-input"
             :value="displayUrl"
             @focusout="onFocusOut"

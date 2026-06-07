@@ -10,14 +10,14 @@
     }>();
 
     const emits = defineEmits<{
-        (e: 'clear'): void
+        (e: 'delete'): void
     }>();
 
     const totalSize = computed<string>(() => {
         const totalBytes = skin.chunks.reduce((sum, sheet) => sum + sheet.content.length, 0);
         const {size, unit} = getFileSizeWithUnit(totalBytes);
 
-        return `${size.toPrecision(4)} ${unit}`;
+        return `${size.toFixed(0)} ${unit}`;
     })
 
     async function downloadTheme(): Promise<void> {
@@ -33,7 +33,7 @@
     }
 
     function deleteTheme(): void {
-        emits('clear');
+        emits('delete');
     }
 </script>
 

@@ -4,7 +4,7 @@ export interface IStorage<T> {
     removeItem: () => void
 }
 
-export function useStorage<T>(storage: Storage, key: string): IStorage<T> {
+export function useStorageItem<T>(storage: Storage, key: string): IStorage<T> {
     function getItem(): T | null {
         try {
             const serializedValue: string | null = storage.getItem(key);

@@ -6,10 +6,6 @@
         styleSheets: CSSStyleSheet[]
     }>();
 
-    const emits = defineEmits<{
-        (e: 'initialize', shadowRoot: ShadowRoot): void
-    }>();
-
     const containerEl = useTemplateRef('container');
     const shadowRoot = ref<ShadowRoot | null>(null);
 
@@ -24,7 +20,6 @@
         shadowRoot.value = containerEl.value.attachShadow({mode: 'open'});
         shadowRoot.value.replaceChildren(rootNode);
 
-        emits('initialize', shadowRoot.value);
         onStyleChange(styleSheets);
     }
 

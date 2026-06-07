@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import {ArrowLeft, ArrowRight, RotateCw} from "@lucide/vue";
+    import {ArrowLeft, ArrowRight, House, RotateCw} from "@lucide/vue";
     import {IHistory} from "@/composables/useHistory";
 
     const {history} = defineProps<{
@@ -27,6 +27,12 @@
             class="btn btn-ghost p-1.25"
             title="Reload current page"
             @click="history.reload()"
+        />
+
+        <house
+            class="btn btn-ghost p-1.25"
+            title="Go to home page"
+            @click="history.push('/')"
         />
     </div>
 </template>

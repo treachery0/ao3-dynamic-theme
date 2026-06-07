@@ -1,13 +1,13 @@
 <script setup lang="ts">
-    import { PaintBucket, SquareRoundCorner, Ruler, RotateCcw, Zap } from "@lucide/vue";
-    import { useSchemaStore } from "@/stores/useSchemaStore";
+    import {PaintBucket, RotateCcw, Ruler, SquareRoundCorner, Zap} from "@lucide/vue";
+    import {useSchemaStore} from "@/stores/useSchemaStore";
     import SettingsColorGroup from "@/pages/editor/SettingsColorGroup.vue";
     import SettingsNumber from "@/pages/editor/SettingsNumber.vue";
 
     const {schema, variables, getDefaultVariables} = useSchemaStore();
 
     function resetVariables(): void {
-        variables.value = getDefaultVariables();
+        variables.value = getDefaultVariables(schema.value);
     }
 </script>
 

@@ -1,16 +1,26 @@
 <script setup lang="ts">
-    import {Flame, Zap, Box} from "@lucide/vue";
+    import {Flame, Zap, Box, Trash2} from "@lucide/vue";
     import {fetchSkin} from "@/functions/api";
     import {format} from "date-fns";
-    import {useSkinStore} from "@/stores/useSkinStore";
+    import {useStorageRef} from "@/composables/useStorageRef";
     import {useSchemaStore} from "@/stores/useSchemaStore";
-    import {SkinChunk} from "common/models";
+    import {SkinChunk, TaskStatus} from "common/models";
+    import {GeneratedSkin} from "@/models/GeneratedSkin";
     import SkinResult from "@/pages/editor/SkinResult.vue";
 
-    const {skins, removeSkin, createSkin} = useSkinStore();
     const {variables} = useSchemaStore();
 
-    async function newSkin() {
+    const skins = useStorageRef<GeneratedSkin[]>('sb-editor-skins', () => []);
+
+    function deleteSkin(index: number): void {
+        skins.value.splice(index, 1);
+    }
+
+    function clearSkins(): void {
+        skins.value = [];
+    }
+
+    async function createSkin() {
         try {
             const entries = Object.entries(variables.value);
             const response = await fetchSkin(entries);
@@ -22,7 +32,14 @@
 
             const chunks: SkinChunk[] = await response.json();
 
-            createSkin(`skin-${format(Date.now(), 'yyMMdd-HHmmss')}`, chunks);
+            const skin: GeneratedSkin = {
+                name: `skin-${format(Date.now(), 'yyMMdd-HHmmss')}`,
+                timestamp: Date.now(),
+                status: TaskStatus.Completed,
+                chunks: chunks
+            };
+
+            skins.value.push(skin);
         }
         catch(err) {
             console.error(err);
@@ -38,9 +55,13 @@
                 <span>Actions</span>
             </h3>
             <div class="grid gap-2">
-                <button class="btn text-xs btn-success btn-outline justify-between" @click="newSkin">
+                <button class="btn text-xs btn-success btn-outline justify-between" @click="createSkin">
                     <span>Create skin</span>
                     <flame/>
+                </button>
+                <button class="btn text-xs btn-error btn-outline justify-between" @click="clearSkins">
+                    <span>Delete all skins</span>
+                    <trash-2/>
                 </button>
             </div>
         </div>
@@ -55,7 +76,7 @@
                     <skin-result
                         v-for="(skin, i) in skins"
                         :skin="skin"
-                        @clear="removeSkin(i)"
+                        @delete="deleteSkin(i)"
                     />
                 </template>
 

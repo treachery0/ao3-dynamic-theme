@@ -1,45 +1,51 @@
 <script setup lang="ts">
-    import {fetchPages} from "@/functions/api";
+    import {Ref, watch} from "vue";
+    import {useStorageRef} from "@/composables/useStorageRef";
+    import {useStorageItem} from "@/composables/useStorageItem";
     import {ICache, useCache} from "@/composables/useCache";
-    import {IHistory} from "@/composables/useHistory";
+    import {IHistory, useHistory} from "@/composables/useHistory";
     import {BrowserOptions} from "@/models/BrowserOptions";
-    import BrowserBody from "@/pages/editor/BrowserBody.vue";
     import BrowserToolbar from "@/pages/editor/BrowserToolbar.vue";
     import AsyncBoundary from "@/components/ui/AsyncBoundary.vue";
+    import BrowserBody from "@/pages/editor/BrowserBody.vue";
 
-    const {history, stylesheets = [], cacheSize} = defineProps<{
-        history: IHistory
-        stylesheets?: CSSStyleSheet[]
-        cacheSize?: number
+    const {getHtml, stylesheets} = defineProps<{
+        getHtml: (url: string) => Promise<string>
+        stylesheets: CSSStyleSheet[]
     }>();
 
-    const options = defineModel<BrowserOptions>({
-        required: true
-    });
+    const options = createOptions('sb-emulator-options');
+    const history = createHistory('sb-emulator-url');
+    const cache = createCache(16);
 
-    const cache: ICache<string, string> | undefined = createCache();
-
-    async function getHtml(): Promise<string> {
+    async function getCachedHtml(): Promise<string> {
         const url: string = history.location.value;
 
         if(!cache) {
-            return fetchHtml(url);
+            return getHtml(url);
         }
 
-        return cache.getAsync(url, () => fetchHtml(url));
+        return cache.getAsync(url, () => getHtml(url));
     }
 
-    async function fetchHtml(url: string): Promise<string> {
-        const response = await fetchPages(url);
-
-        if(!response.ok) {
-            throw new Error(`Failed to fetch page (${response.status} ${response.statusText})`);
-        }
-
-        return response.text();
+    function createOptions(storageKey: string): Ref<BrowserOptions> {
+        return useStorageRef<BrowserOptions>(storageKey, () => ({
+            zoom: 1
+        }));
     }
 
-    function createCache(): ICache<string, string> | undefined {
+    function createHistory(storageKey: string): IHistory {
+        const storage = useStorageItem<string>(localStorage, storageKey);
+        const history = useHistory(storage.getItem() ?? '/');
+
+        watch(history.location, value => {
+            storage.setItem(value);
+        });
+
+        return history;
+    }
+
+    function createCache(cacheSize: number): ICache<string, string> | undefined {
         if(!cacheSize || cacheSize <= 0) {
             return;
         }
@@ -49,37 +55,23 @@
             {maxItems: 16}
         );
     }
-
-    function onNavigate(href: string): void {
-        const url = new URL(href);
-
-        // only proceed for links that are relative,
-        // and therefore point to a location on the embedded site
-        if(url.host !== location.host) {
-            return;
-        }
-
-        const path = url.pathname + url.search;
-
-        history.push(path);
-    }
 </script>
 
 <template>
-    <div class="@container h-full flex flex-col bg-base-100 border-2 border-base-content/30">
+    <div class="@container h-full flex flex-col bg-base-100">
         <browser-toolbar
             v-model="options"
             :history="history"
-            class="py-1 border-base-content/30 border-b-2"
+            class="border-base-content/30 border-b-2"
         />
 
         <div class="grow overflow-auto">
             <async-boundary :transitionKey="history.location.value">
                 <browser-body
-                    :get-html="getHtml"
+                    :get-html="getCachedHtml"
                     :stylesheets="stylesheets"
-                    @navigate="onNavigate"
-                    :style="options"
+                    :history="history"
+                    :options="options"
                 />
             </async-boundary>
         </div>

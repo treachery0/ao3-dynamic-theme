@@ -1,57 +1,40 @@
 <script setup lang="ts">
-    import {ref} from "vue";
-    import {ISimulatedDocument, useSimulatedDocument} from "@/composables/useSimulatedDocument";
-    import ShadowDomRenderer from "@/components/ui/ShadowDomRenderer.vue";
+    import {computed} from "vue";
+    import {IHistory} from "@/composables/useHistory";
+    import {BrowserOptions} from "@/models/BrowserOptions";
+    import EmulatedDocument from "@/components/emulator/EmulatedDocument.vue";
 
-    const {stylesheets, getHtml} = defineProps<{
-        stylesheets: CSSStyleSheet[]
+    const {getHtml, stylesheets, options, history} = defineProps<{
         getHtml: () => Promise<string>
+        stylesheets: CSSStyleSheet[]
+        options: BrowserOptions
+        history: IHistory
     }>();
 
-    const emits = defineEmits<{
-        (e: 'navigate', url: string): void
-    }>();
+    const html = await getHtml();
 
-    const {documentRoot, documentStyle} = await createDocument();
+    const documentStyle = computed(() => ({
+        zoom: options.zoom
+    }));
 
-    async function createDocument(): Promise<ISimulatedDocument> {
-        const html = await getHtml();
-        const htmlRef = ref(html);
-
-        const {documentRoot, documentStyle} = useSimulatedDocument(htmlRef);
-        documentRoot.value.addEventListener('click', onClickEvent);
-
-        return {documentRoot, documentStyle};
-    }
-
-    function onClickEvent(e: Event): void {
-        e.preventDefault();
-
-        if(!(e.target instanceof Element)) {
+    function onNavigate(url: URL): void {
+        // only proceed for links that are relative,
+        // and therefore point to a location on the embedded site
+        if(url.host !== location.host) {
             return;
         }
 
-        const link = e.target.closest('a');
+        const path = url.pathname + url.search;
 
-        if(!(link instanceof HTMLAnchorElement) || !link.href) {
-            return;
-        }
-
-        emits('navigate', link.href);
+        history.push(path);
     }
 </script>
 
 <template>
-    <shadow-dom-renderer
-        :root-node="documentRoot"
-        :style-sheets="[documentStyle, ...stylesheets]"
-        class="dom-container"
+    <emulated-document
+        :html="html"
+        :stylesheets="stylesheets"
+        :style="documentStyle"
+        @navigate="onNavigate"
     />
 </template>
-
-<style scoped>
-    .dom-container {
-        contain: layout style;
-        content-visibility: auto;
-    }
-</style>

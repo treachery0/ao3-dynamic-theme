@@ -9,7 +9,7 @@
     --color-primary: oklch(65% 0.18 22);
     --color-primary-content: var(--color-base-200);
     --color-secondary: oklch(72% 0.123 63);
-    --color-secondary-content: var(--color-base-content);
+    --color-secondary-content: var(--color-base-200);
     --color-accent: oklch(43% 0.074 225);
     --color-accent-content: var(--color-base-content);
     --color-neutral: oklch(16% 0.015 330);
@@ -43,6 +43,12 @@
 }
 
 @theme {
+    /* breakpoints */
+    --breakpoint-xs: 30rem; /* 480px */
+    --breakpoint-sm: 40rem; /* 640px */
+    --breakpoint-md: 55rem; /* 880px */
+
+    /* fonts */
     --font-serif: "MozillaHeadline", serif;
     --font-sans: "MozillaText", sans-serif;
     --font-mono: monospace;

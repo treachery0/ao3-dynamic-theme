@@ -1,11 +1,8 @@
-import { computed, Ref } from "vue";
-import { useSingleton } from "@/composables/useSingleton";
-import { useSkinSchema } from "@/composables/useSkinSchema";
-import { getDefaultSchema } from "@/functions/theme";
-import { SkinChunk, SkinSchema } from "common/models";
-import { useStorageRef } from "@/composables/useStorageRef";
-import { useVariableStylesheet } from "@/composables/useVariableStylesheet";
-import { createMediaQueryWrapped } from "common/functions";
+import {computed} from "vue";
+import {useSingleton} from "@/composables/useSingleton";
+import {useStorageRef} from "@/composables/useStorageRef";
+import {getDefaultSchema} from "@/functions/theme";
+import {SkinSchema} from "common/models";
 
 const {initializeComposable, useComposable} = useSingleton(useSchemaStore);
 
@@ -14,32 +11,37 @@ export {
     useComposable as useSchemaStore
 }
 
-export interface ISchemaStore {
-    schema: Readonly<Ref<SkinSchema>>
-    getDefaultVariables: () => Record<string, string>
-    getUnit: (key: string) => string
-}
-
-function useSchemaStore(chunks: SkinChunk[]) {
+function useSchemaStore() {
     const schema = computed<SkinSchema>(getDefaultSchema);
-    const {getDefaultVariables, getUnit} = useSkinSchema(schema);
-    const variables = useStorageRef('sg-editor-variables', getDefaultVariables);
-    const variableStylesheet = useVariableStylesheet(variables, getUnit);
+    const variables = useStorageRef('sb-editor-variables', () => getDefaultVariables(schema.value));
 
-    const chunkStylesheets = chunks.map(c => createMediaQueryWrapped(c.media, c.content));
+    function getDefaultVariables(schema: SkinSchema): Record<string, string> {
+        const results: Record<string, string> = {};
 
-    const stylesheets = computed<CSSStyleSheet[]>(() => {
-        return [
-            variableStylesheet.value,
-            ...chunkStylesheets
-        ];
-    });
+        schema.colors.forEach(group => {
+            group.items.forEach(p => {
+                results[p.key] = p.value;
+            });
+        });
+
+        schema.sizes.forEach(p => {
+            results[p.key] = String(p.value);
+        });
+
+        schema.radius.forEach(p => {
+            results[p.key] = String(p.value);
+        });
+
+        schema.fonts.forEach(p => {
+            results[p.key] = String(p.value);
+        });
+
+        return results;
+    }
 
     return {
         schema,
-        stylesheets,
         variables,
-        getDefaultVariables,
-        getUnit
+        getDefaultVariables
     };
 }
