@@ -15,7 +15,7 @@
 </script>
 
 <template>
-    <div class="relative flex gap-x-4 gap-y-1 items-center px-2 py-1 flex-wrap @lg:flex-nowrap">
+    <div class="relative flex gap-x-4 gap-y-0.5 items-center px-2 py-1 pt-2 @lg:pt-1 flex-wrap @lg:flex-nowrap">
         <toolbar-navigation
             :history
             class="order-1"
