@@ -1,14 +1,15 @@
 import postcss from "postcss";
-import { SkinChunk, ChunkImportance } from "common/models";
 import { join } from "node:path";
-import { createProperty, createRule, mergeRules } from "common/functions";
+import { readServerAsset } from "@/services/assets.service";
+import { getPlugins } from "@/functions/css-plugins";
+import { SkinChunk } from "common/models/SkinChunk";
+import { ChunkImportance } from "common/models/ChunkImportance";
+import { createProperty, createRule, mergeRules } from "common/functions/css-utils";
 import { AppContext } from "@/models/AppContext";
 import { GenerateTaskType } from "@/models/GenerateTaskType";
 import { CssAssetInfo } from "@/models/CssAssetInfo";
-import { readServerAsset } from "@/services/assets.service";
-import { getPlugins } from "@/functions/css-plugins";
 
-export async function generateCss(c: AppContext, variables: string[][], options: {} = {}): Promise<SkinChunk[]> {
+export async function generateCss(c: AppContext, variables: string[][]): Promise<SkinChunk[]> {
     const assetType = GenerateTaskType.Raw;
     const properties = variables.map(v => createProperty(v[0], v[1]));
     const plugins = getPlugins({type: assetType})
@@ -69,7 +70,7 @@ const sheets: CssAssetInfo[] = [
         description: 'Narrow',
         media: 'only screen and (max-width: 42em)',
         filename: 'media-narrow.css',
-        importance: ChunkImportance.Required,
+        importance: ChunkImportance.Recommended,
     },
     {
         description: 'Speech',

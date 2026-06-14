@@ -1,19 +1,19 @@
 <script setup lang="ts">
-    import { NumberVariable } from "common/models";
-    import { useSchemaStore } from "@/stores/useSchemaStore";
+    import {NumberVariable} from "common/models/SkinTemplate";
+    import {useTemplateStore} from "@/stores/useTemplateStore";
 
     const {value} = defineProps<{
         value: NumberVariable
     }>();
 
-    const {variables} = useSchemaStore();
+    const {variables} = useTemplateStore();
 </script>
 
 <template>
     <div class="text-xs">
         <div class="flex justify-between mb-1 px-0.5">
-            <span>{{ value.description }}</span>
-            <span>{{ variables[value.key] }}{{ value.unit }}</span>
+            <span>{{value.description}}</span>
+            <span>{{variables[value.key]}}{{value.unit}}</span>
         </div>
         <input
             type="range"

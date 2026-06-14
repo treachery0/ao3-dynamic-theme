@@ -5,11 +5,11 @@ export interface ICache<TKey, TValue> {
     entries: () => MapIterator<[TKey, TValue]>
 }
 
-export interface ICacheOptions<TKey, TValue> {
+export interface ICacheOptions {
     maxItems?: number
 }
 
-export function useCache<TKey, TValue>(storage: Map<TKey, TValue>, options: ICacheOptions<TKey, TValue> = {}): ICache<TKey, TValue> {
+export function useCache<TKey, TValue>(storage: Map<TKey, TValue>, options: ICacheOptions = {}): ICache<TKey, TValue> {
     function get(key: TKey, getter: () => TValue): TValue {
         const item = storage.get(key);
 

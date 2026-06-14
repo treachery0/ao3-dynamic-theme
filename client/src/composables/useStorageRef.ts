@@ -1,5 +1,5 @@
-import { ref, Ref, watch } from "vue";
-import { useStorageItem } from "@/composables/useStorageItem";
+import {ref, Ref, watch} from "vue";
+import {useStorageItem} from "@/composables/useStorageItem";
 
 export function useStorageRef<T>(key: string): Ref<T | null>;
 export function useStorageRef<T>(key: string, initializer: () => T): Ref<T>;

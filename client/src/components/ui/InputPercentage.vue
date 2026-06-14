@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import {Plus, Minus} from "@lucide/vue";
+    import {Minus, Plus} from "@lucide/vue";
 
     const model = defineModel<number>({
         required: true

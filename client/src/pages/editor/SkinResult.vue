@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { computed } from "vue";
+    import {computed} from "vue";
     import JSZip from "jszip";
-    import { FolderDown, Trash2 } from "@lucide/vue";
-    import { downloadFile, getFileSizeWithUnit } from "@/functions/file-utils";
-    import { GeneratedSkin } from "@/models/GeneratedSkin";
+    import {FolderDown, Trash2} from "@lucide/vue";
+    import {downloadFile, getFileSizeWithUnit} from "@/functions/file-utils";
+    import {GeneratedSkin} from "@/models/GeneratedSkin";
 
     const {skin} = defineProps<{
         skin: GeneratedSkin
@@ -40,12 +40,12 @@
 <template>
     <div class="p-1.5 border-2 border-base-content/30 bg-base-100">
         <div class="shrink min-w-0 truncate font-medium text-xs mb-1" :title="skin.name">
-            {{ skin.name }}
+            {{skin.name}}
         </div>
 
         <div class="flex items-center gap-1.5">
             <div class="text-xs me-auto">
-                {{ totalSize }}
+                {{totalSize}}
             </div>
             <button class="btn btn-success py-0.5 h-auto" @click.stop="downloadTheme">
                 <folder-down/>

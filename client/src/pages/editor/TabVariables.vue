@@ -1,13 +1,13 @@
 <script setup lang="ts">
     import {PaintBucket, RotateCcw, Ruler, SquareRoundCorner, Zap} from "@lucide/vue";
-    import {useSchemaStore} from "@/stores/useSchemaStore";
+    import {useTemplateStore} from "@/stores/useTemplateStore";
     import SettingsColorGroup from "@/pages/editor/SettingsColorGroup.vue";
     import SettingsNumber from "@/pages/editor/SettingsNumber.vue";
 
-    const {schema, variables, getDefaultVariables} = useSchemaStore();
+    const {template, variables, getDefaultVariables} = useTemplateStore();
 
     function resetVariables(): void {
-        variables.value = getDefaultVariables(schema.value);
+        variables.value = getDefaultVariables(template.value);
     }
 </script>
 
@@ -20,7 +20,7 @@
             </h3>
             <div class="grid grid-cols-4 gap-2 text-neutral-content/80">
                 <settings-color-group
-                    v-for="group in schema.colors"
+                    v-for="group in template.colors"
                     :group="group"
                 />
             </div>
@@ -33,7 +33,7 @@
             </h3>
             <div class="grid gap-4 text-neutral-content/80">
                 <settings-number
-                    v-for="value in schema.radius"
+                    v-for="value in template.radius"
                     :value="value"
                 />
             </div>
@@ -46,7 +46,7 @@
             </h3>
             <div class="grid gap-4 text-neutral-content/80">
                 <settings-number
-                    v-for="value in schema.sizes"
+                    v-for="value in template.sizes"
                     :value="value"
                 />
             </div>

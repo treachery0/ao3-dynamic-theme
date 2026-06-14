@@ -1,4 +1,4 @@
-import { inject, provide } from "vue";
+import {inject, provide} from "vue";
 
 export interface ISingleton<TUse, TState> {
     initializeComposable: (state: TState) => TUse

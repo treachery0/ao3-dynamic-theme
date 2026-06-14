@@ -18,4 +18,4 @@ const routes = [
 export const router = createRouter({
     history: createWebHashHistory(__URL_BASE__),
     routes: routes
-})
+});

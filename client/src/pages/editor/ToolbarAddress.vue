@@ -1,6 +1,5 @@
 <script setup lang="ts">
     import {computed, useTemplateRef} from "vue";
-    import {getHostUrl} from "common/functions";
     import {IHistory} from "@/composables/useHistory";
 
     const {history} = defineProps<{
@@ -10,7 +9,7 @@
     const inputElement = useTemplateRef('url-input');
 
     const displayUrl = computed<string>(() => {
-        return getHostUrl() + history.location.value;
+        return `https://archiveofourown.org${history.location.value}`;
     });
 
     function onKeyDown(e: KeyboardEvent): void {

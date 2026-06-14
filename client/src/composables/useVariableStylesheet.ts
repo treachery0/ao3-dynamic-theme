@@ -1,8 +1,8 @@
-import { computed, ComputedRef, Ref } from "vue";
-import { createProperty, createRule } from "common/functions";
-import {SkinSchema} from "common/models";
+import {computed, ComputedRef, Ref} from "vue";
+import {createProperty, createRule} from "common/functions/css-utils";
+import {SkinTemplate} from "common/models/SkinTemplate";
 
-export function useVariableStylesheet(schema: Readonly<Ref<SkinSchema>>, variables: Readonly<Ref<Record<string, string>>>): ComputedRef<CSSStyleSheet> {
+export function useVariableStylesheet(template: Readonly<Ref<SkinTemplate>>, variables: Readonly<Ref<Record<string, string>>>): ComputedRef<CSSStyleSheet> {
     function createStyleSheet(): CSSStyleSheet {
         const entries = Object.entries(variables.value);
         const properties = entries.map(toProperty);
@@ -28,13 +28,13 @@ export function useVariableStylesheet(schema: Readonly<Ref<SkinSchema>>, variabl
     }
 
     function getUnit(key: string): string {
-        const size = schema.value.sizes.find(x => x.key === key);
+        const size = template.value.sizes.find(x => x.key === key);
 
         if(size) {
             return size.unit;
         }
 
-        const radius = schema.value.radius.find(x => x.key === key);
+        const radius = template.value.radius.find(x => x.key === key);
 
         if(radius) {
             return radius.unit;

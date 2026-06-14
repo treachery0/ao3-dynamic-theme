@@ -1,9 +1,10 @@
-import { ref, computed, ComputedRef, nextTick } from 'vue';
+import {computed, ComputedRef, nextTick, ref} from 'vue';
 
 export interface IHistory {
     location: ComputedRef<string>
     canBack: ComputedRef<boolean>
     canForward: ComputedRef<boolean>
+
     push: (to: string) => void
     back: () => void
     forward: () => void
@@ -29,13 +30,13 @@ export function useHistory(initial: string = '/'): IHistory {
     }
 
     function back(): void {
-        if(canBack.value){
+        if(canBack.value) {
             index.value--;
         }
     }
 
     function forward(): void {
-        if(canForward.value){
+        if(canForward.value) {
             index.value++;
         }
     }

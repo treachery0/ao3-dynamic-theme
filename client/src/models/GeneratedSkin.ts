@@ -1,4 +1,5 @@
-import { SkinChunk, TaskStatus } from "common/models";
+import {SkinChunk} from "common/models/SkinChunk";
+import {TaskStatus} from "common/models/TaskStatus";
 
 export interface GeneratedSkin {
     name: string

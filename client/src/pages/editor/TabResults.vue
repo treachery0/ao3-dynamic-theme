@@ -3,12 +3,13 @@
     import {fetchSkin} from "@/functions/api";
     import {format} from "date-fns";
     import {useStorageRef} from "@/composables/useStorageRef";
-    import {useSchemaStore} from "@/stores/useSchemaStore";
-    import {SkinChunk, TaskStatus} from "common/models";
+    import {useTemplateStore} from "@/stores/useTemplateStore";
+    import {SkinChunk} from "common/models/SkinChunk";
+    import {TaskStatus} from "common/models/TaskStatus";
     import {GeneratedSkin} from "@/models/GeneratedSkin";
     import SkinResult from "@/pages/editor/SkinResult.vue";
 
-    const {variables} = useSchemaStore();
+    const {variables} = useTemplateStore();
 
     const skins = useStorageRef<GeneratedSkin[]>('sb-editor-skins', () => []);
 

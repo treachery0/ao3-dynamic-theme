@@ -1,4 +1,4 @@
-import { computed, ComputedRef, Ref } from "vue";
+import {computed, ComputedRef, Ref} from "vue";
 
 export interface ISimulatedDocument {
     documentRoot: ComputedRef<Node>

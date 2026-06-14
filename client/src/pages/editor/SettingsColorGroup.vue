@@ -1,12 +1,12 @@
 <script setup lang="ts">
-    import { ColorGroup, ColorVariable } from "common/models";
-    import { useSchemaStore } from "@/stores/useSchemaStore";
+    import {ColorGroup, ColorVariable} from "common/models/SkinTemplate";
+    import {useTemplateStore} from "@/stores/useTemplateStore";
 
     const {group} = defineProps<{
         group: ColorGroup
     }>();
 
-    const {variables} = useSchemaStore();
+    const {variables} = useTemplateStore();
 
     function groupStyle(group: ColorGroup) {
         return {
@@ -48,7 +48,7 @@
                 class="h-10 grow font-bold flex justify-center items-center relative overflow-hidden border border-base-content"
                 :style="getColorCellStyle(group, color)"
             >
-                <span>{{ colorText(color) }}</span>
+                <span>{{colorText(color)}}</span>
                 <input
                     type="color"
                     class="invisible absolute left-full top-0"
@@ -57,7 +57,7 @@
             </label>
         </div>
         <div class="text-xs ms-0.5 text-neutral-content/80">
-            {{ group.name }}
+            {{group.name}}
         </div>
     </div>
 </template>

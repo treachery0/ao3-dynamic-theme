@@ -1,7 +1,8 @@
-import { SkinSchema } from "common/models";
+import {SkinTemplate} from "common/models/SkinTemplate";
 
-export function getDefaultSchema(): SkinSchema {
+export function getDefaultSkinTemplate(): SkinTemplate {
     return {
+        name: 'Default',
         colors: [
             {
                 name: 'base',

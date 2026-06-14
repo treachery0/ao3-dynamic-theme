@@ -22,7 +22,7 @@ export default defineConfig({
         }
     },
     define: {
-        __APP_VERSION__: JSON.stringify('2.0.2'),
+        __APP_VERSION__: JSON.stringify('2.1.0'),
         __BUILD_DATE__: new Date(),
         __URL_BASE__: JSON.stringify('/ao3-theme-generator'),
         __API_URL_DEV__: JSON.stringify('http://localhost:8787'),

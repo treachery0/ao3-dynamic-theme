@@ -1,8 +1,6 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { getHostUrl } from "common/functions";
 import { AppContext } from "@/models/AppContext";
-import { fetchPage } from "@/services/pages.service";
 
 export class Pages extends OpenAPIRoute {
     schema = {
@@ -16,18 +14,27 @@ export class Pages extends OpenAPIRoute {
     async handle(c: AppContext) {
         const {query} = await this.getValidatedData<typeof this.schema>();
 
-        const url = new URL(query.url, getHostUrl());
+        const url = new URL(query.url, 'https://archiveofourown.org');
 
-        const response = await fetchPage(url);
+        const response = await this.fetchPage(url);
 
         if(!response.ok) {
             c.status(response.status as any);
 
-            return c.text(response.statusText);
+            return c.json(response.headers);
         }
 
         const html = await response.text();
 
         return c.text(html);
+    }
+
+    async fetchPage(url: URL) {
+        return fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+                'Accept': 'text/html'
+            }
+        });
     }
 }

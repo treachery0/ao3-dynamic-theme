@@ -1,4 +1,4 @@
-import { onBeforeUnmount } from "vue";
+import {onBeforeUnmount} from "vue";
 
 export type IAbortableCallback<T> = (signal: AbortSignal, abort: () => void) => Promise<T>
 

@@ -1,4 +1,5 @@
-export type SkinSchema = {
+export type SkinTemplate = {
+    name: string
     colors: ColorGroup[]
     radius: NumberVariable[]
     sizes: NumberVariable[]
